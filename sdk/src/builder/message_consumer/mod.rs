@@ -10,7 +10,7 @@ use iggy::identifier::Identifier;
 use iggy::messages::poll_messages::PollingStrategy;
 use iggy::utils::duration::IggyDuration;
 use std::str::FromStr;
-use tracing::{error, info, trace, warn};
+use tracing::error;
 
 pub struct MessageConsumer {
     consumer: IggyConsumer,
@@ -54,7 +54,7 @@ impl MessageConsumer {
         let stream_id = match Identifier::from_str_value(&args.stream_id) {
             Ok(id) => id,
             Err(err) => {
-                error!("Failed to parse stream id: {}", err);
+                error!("Failed to parse stream id for consumer due to error: {}", err);
                 return Err(err);
             }
         };
@@ -62,39 +62,38 @@ impl MessageConsumer {
         let topic_id = match Identifier::from_str_value(&args.topic_id) {
             Ok(id) => id,
             Err(err) => {
-                error!("Failed to parse topic id: {}", err);
+                error!("Failed to parse topic id for consumer due to error: {}", err);
                 return Err(err);
             }
         };
 
-        // WTF? How can I convert this mess into correctly error handled constructin
-        // without butting the borrow checker?
-        let mut consumer = match ConsumerKind::from_code(args.consumer_kind)
-            .expect("[MessageConsumer]: Invalid consumer kind")
-        {
-            ConsumerKind::Consumer => client
-                .consumer(
-                    consumer_name,
-                    &args.stream_id,
-                    &args.topic_id,
-                    args.partition_id,
-                )
-                .expect("[MessageConsumer]: Failed to create consumer"),
+        let poll_interval = match IggyDuration::from_str(&args.interval) {
+            Ok(interval) => interval,
+            Err(err) => {
+                error!("Failed to parse interval for consumer due to error: {}", err);
+                // Add better error type
+                return Err(IggyError::CommandLengthError(err.to_string()));
+            }
+        };
 
-            ConsumerKind::ConsumerGroup => client
-                .consumer_group(consumer_name, &args.stream_id, &args.topic_id)
-                .expect("[MessageConsumer]: Failed to create consumer group"),
+        let mut consumer = match ConsumerKind::from_code(args.consumer_kind)? {
+            ConsumerKind::Consumer => client.consumer(
+                consumer_name,
+                &args.stream_id,
+                &args.topic_id,
+                args.partition_id,
+            )?,
+            ConsumerKind::ConsumerGroup => {
+                client.consumer_group(consumer_name, &args.stream_id, &args.topic_id)?
+            }
         }
-            .auto_commit(AutoCommit::When(AutoCommitWhen::PollingMessages))
-            .create_consumer_group_if_not_exists()
-            .auto_join_consumer_group()
-            .polling_strategy(PollingStrategy::last())
-            .poll_interval(
-                IggyDuration::from_str(&args.interval)
-                    .expect("[MessageConsumer]: Invalid interval format"),
-            )
-            .batch_size(args.messages_per_batch)
-            .build();
+        .auto_commit(AutoCommit::When(AutoCommitWhen::PollingMessages))
+        .create_consumer_group_if_not_exists()
+        .auto_join_consumer_group()
+        .polling_strategy(PollingStrategy::last())
+        .poll_interval(poll_interval)
+        .batch_size(args.messages_per_batch)
+        .build();
 
         match consumer.init().await {
             Ok(_) => {}

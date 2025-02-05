@@ -1,5 +1,5 @@
 use async_trait::async_trait;
-use crate::builder::event_processor::EventProcessorError;
+use iggy::error::IggyError;
 use iggy::messages::send_messages::Message;
 
 /// Event processor interface
@@ -13,7 +13,7 @@ pub trait EventProcessor {
     ///
     /// Returns an error if the message cannot be sent.
     ///
-    async fn send_one_event(&self, message: Message) -> Result<(), EventProcessorError>;
+    async fn send_one_event(&self, message: Message) -> Result<(), IggyError>;
 
     /// Send a batch of iggy messages.
     ///
@@ -22,18 +22,18 @@ pub trait EventProcessor {
     /// # Errors
     ///
     /// Returns an error if any of the messages cannot be sent.
-    async fn send_event_batch(&self, messages: Vec<Message>) -> Result<(), EventProcessorError>;
+    async fn send_event_batch(&self, messages: Vec<Message>) -> Result<(), IggyError>;
 }
 
 // Default implementation for `&T`
 // https://users.rust-lang.org/t/hashmap-get-dereferenced/33558
 #[async_trait]
 impl<T: EventProcessor + Send + Sync> EventProcessor for &T {
-    async fn send_one_event(&self, message: Message) -> Result<(), EventProcessorError> {
+    async fn send_one_event(&self, message: Message) -> Result<(), IggyError> {
         (**self).send_one_event(message).await
     }
 
-    async fn send_event_batch(&self, messages: Vec<Message>) -> Result<(), EventProcessorError> {
+    async fn send_event_batch(&self, messages: Vec<Message>) -> Result<(), IggyError> {
         (**self).send_event_batch(messages).await
     }
 }

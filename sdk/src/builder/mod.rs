@@ -3,3 +3,4 @@ mod config;
 mod utils;
 mod event_processor;
 mod message_consumer;
+mod message_producer;
