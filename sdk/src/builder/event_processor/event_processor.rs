@@ -1,7 +1,9 @@
+use async_trait::async_trait;
 use crate::builder::event_processor::EventProcessorError;
 use iggy::messages::send_messages::Message;
 
 /// Event processor interface
+#[async_trait]
 pub trait EventProcessor {
     /// Send a single iggy message.
     ///
@@ -25,6 +27,7 @@ pub trait EventProcessor {
 
 // Default implementation for `&T`
 // https://users.rust-lang.org/t/hashmap-get-dereferenced/33558
+#[async_trait]
 impl<T: EventProcessor + Send + Sync> EventProcessor for &T {
     async fn send_one_event(&self, message: Message) -> Result<(), EventProcessorError> {
         (**self).send_one_event(message).await
