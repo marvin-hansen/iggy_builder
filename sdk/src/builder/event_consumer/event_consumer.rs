@@ -14,7 +14,8 @@ pub trait EventConsumer {
     async fn consume(&self, data: Vec<u8>) -> Result<(), EventConsumerError>;
 }
 
-// This is a default implementation for referenced types that implement EventConsumer
+// Default implementation for `&T`
+// https://users.rust-lang.org/t/hashmap-get-dereferenced/33558
 impl<T: EventConsumer + Send + Sync> EventConsumer for &T {
     /// Consume a event from the message bus.
     ///
