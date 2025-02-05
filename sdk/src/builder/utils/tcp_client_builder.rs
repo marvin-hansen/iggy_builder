@@ -16,17 +16,19 @@ use std::sync::Arc;
 ///
 /// A `Result` wrapping the `IggyClient` instance or an `IggyError`.
 ///
-pub async fn build_tcp_client_from_config(iggy_config: &IggyConfig) -> Result<IggyClient, IggyError> {
+pub(crate) async fn build_tcp_client_from_config(
+    iggy_config: &IggyConfig,
+) -> Result<IggyClient, IggyError> {
     // Build config
     let args = Args::from_iggy_config(iggy_config);
 
     // Build client
-    build_tcp_client_from_args(args.to_sdk_args()).await
+    build_client_from_args(args.to_sdk_args()).await
 }
 
-pub async fn build_client_from_args(args: Args) -> Result<IggyClient, IggyError> {
+pub(crate) async fn build_tcp_client_from_args(args: Args) -> Result<IggyClient, IggyError> {
     // Build client
-    build_tcp_client_from_args(args.to_sdk_args()).await
+    build_client_from_args(args.to_sdk_args()).await
 }
 
 /// Builds a raw Iggy TCP client using the provided `Args`.
@@ -40,7 +42,7 @@ pub async fn build_client_from_args(args: Args) -> Result<IggyClient, IggyError>
 ///
 /// A `Result` wrapping the `IggyClient` instance or an `IggyError`.
 ///
-async fn build_tcp_client_from_args(args: iggy::args::Args) -> Result<IggyClient, IggyError> {
+async fn build_client_from_args(args: iggy::args::Args) -> Result<IggyClient, IggyError> {
     // Build client provider configuration
     let client_provider_config = Arc::new(
         ClientProviderConfig::from_args(args).expect("Failed to create client provider config"),

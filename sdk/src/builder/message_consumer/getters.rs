@@ -1,6 +1,6 @@
+use crate::builder::message_consumer::MessageConsumer;
 use iggy::clients::consumer::IggyConsumer;
 use iggy::identifier::Identifier;
-use crate::builder::message_consumer::MessageConsumer;
 
 impl MessageConsumer {
     /// Returns a reference to the stream identifier.

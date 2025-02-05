@@ -1,6 +1,6 @@
+use crate::builder::message_producer::MessageProducer;
 use iggy::clients::producer::IggyProducer;
 use iggy::identifier::Identifier;
-use crate::builder::message_producer::MessageProducer;
 
 impl MessageProducer {
     /// Returns a reference to the stream identifier.

@@ -1,5 +1,5 @@
-use std::fmt::{Display, Formatter};
 use crate::builder::config::{Args, IggyConfig};
+use std::fmt::{Display, Formatter};
 
 #[derive(Debug, Clone, Eq, PartialEq)]
 pub(crate) struct ConfigFields {

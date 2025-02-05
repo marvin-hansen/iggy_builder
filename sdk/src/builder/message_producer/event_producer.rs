@@ -5,7 +5,6 @@ use iggy::error::IggyError;
 use iggy::messages::send_messages::Message;
 use tracing::error;
 
-
 #[async_trait]
 impl EventProcessor for MessageProducer {
     /// Sends a single event to the target topic.

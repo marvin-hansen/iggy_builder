@@ -54,7 +54,10 @@ impl MessageConsumer {
         let stream_id = match Identifier::from_str_value(&args.stream_id) {
             Ok(id) => id,
             Err(err) => {
-                error!("Failed to parse stream id for consumer due to error: {}", err);
+                error!(
+                    "Failed to parse stream id for consumer due to error: {}",
+                    err
+                );
                 return Err(err);
             }
         };
@@ -62,7 +65,10 @@ impl MessageConsumer {
         let topic_id = match Identifier::from_str_value(&args.topic_id) {
             Ok(id) => id,
             Err(err) => {
-                error!("Failed to parse topic id for consumer due to error: {}", err);
+                error!(
+                    "Failed to parse topic id for consumer due to error: {}",
+                    err
+                );
                 return Err(err);
             }
         };
@@ -70,7 +76,10 @@ impl MessageConsumer {
         let poll_interval = match IggyDuration::from_str(&args.interval) {
             Ok(interval) => interval,
             Err(err) => {
-                error!("Failed to parse interval for consumer due to error: {}", err);
+                error!(
+                    "Failed to parse interval for consumer due to error: {}",
+                    err
+                );
                 // Add better error type
                 return Err(IggyError::CommandLengthError(err.to_string()));
             }
