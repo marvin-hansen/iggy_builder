@@ -1,0 +1,24 @@
+[workspace]
+resolver = "2"
+members = [
+    "sdk",
+]
+
+[workspace.metadata.cargo-machete]
+ignored = ["openssl"]
+
+# Optimize all crates
+[profile.release]
+opt-level = 3
+strip = 'debuginfo'  # Automatically strip debug infos from the binary to reduce size
+lto = true    # Enable Link Time Optimization (LTO)
+codegen-units = 1 # Reduce Parallel Code Generation Units to Increase Optimization
+
+
+# There's a Cargo feature named profile-overrides
+# that lets you override the optimization level of dependencies.
+# https://docs.rust-embedded.org/book/unsorted/speed-vs-size.html
+[profile.release.package."*"]
+opt-level = 3
+strip = 'debuginfo'  # Automatically strip debug infos from the binary to reduce size
+codegen-units = 1 # Reduce Parallel Code Generation Units to Increase Optimization
