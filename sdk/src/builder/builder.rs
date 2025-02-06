@@ -8,6 +8,21 @@ use iggy::error::IggyError;
 use tracing::error;
 
 impl IggyBuilder {
+    /// Builds an `IggyClient` and an `IggyBuilder` using the provided configuration or arguments.
+    ///
+    /// # Arguments
+    ///
+    /// * `iggy_config` - An optional `IggyConfig` to use for building the client.
+    /// * `args` - An optional tuple of `Args` and a `String` to use for building the client.
+    ///
+    /// # Errors
+    ///
+    /// * `IggyError::InvalidConfiguration` - If no configuration or arguments are provided.
+    /// * `IggyError::ConnectionError` - If a connection to the client could not be established.
+    /// * `IggyError::AuthenticationError` - If authentication with the client fails.
+    /// * `IggyError::InvalidIdentifier` - If the provided stream or topic identifier is invalid.
+    /// * `IggyError::CommandLengthError` - If the length of a command is invalid.
+    ///
     pub(crate) async fn build(
         iggy_config: Option<&IggyConfig>,
         args: Option<(Args, String)>,
@@ -62,24 +77,17 @@ impl IggyBuilder {
         };
 
         let iggy_producer =
-            match MessageProducer::from_client(&iggy_client, stream_id.clone(), topic_id.clone())
-                .await
-            {
+            match Self::build_producer(&iggy_client, stream_id.clone(), topic_id.clone()).await {
                 Ok(producer) => producer,
                 Err(err) => return Err(err),
             };
 
-        let iggy_consumer = match MessageConsumer::from_client(
-            &iggy_client,
-            consumer_name,
-            stream_id.clone(),
-            topic_id.clone(),
-        )
-        .await
-        {
-            Ok(consumer) => consumer,
-            Err(err) => return Err(err),
-        };
+        let iggy_consumer =
+            match Self::build_consumer(&iggy_client, consumer_name, stream_id, topic_id).await {
+                Ok(consumer) => consumer,
+                Err(err) => return Err(err),
+            };
+
         Ok((
             iggy_client,
             Self {
@@ -88,8 +96,65 @@ impl IggyBuilder {
             },
         ))
     }
+
+    /// Builds a `MessageConsumer` using the provided `IggyClient` and identifiers.
+    ///
+    /// # Arguments
+    ///
+    /// * `iggy_client` - The `IggyClient` to use for authentication and communication.
+    /// * `consumer_name` - The name of the consumer.
+    /// * `stream_id` - The identifier of the stream.
+    /// * `topic_id` - The identifier of the topic.
+    ///
+    /// # Returns
+    ///
+    /// A `Result` wrapping the `MessageConsumer` instance or an `IggyError`.
+    ///
+    /// # Errors
+    ///
+    /// * `IggyError::InvalidIdentifier` - If the provided stream or topic identifier is invalid.
+    /// * `IggyError::AuthenticationError` - If authentication with the client fails.
+    /// * `IggyError::ConnectionError` - If a connection to the client could not be established.
+    /// * `IggyError::CommandLengthError` - If the length of a command is invalid.
+    ///
+    pub async fn build_consumer(
+        iggy_client: &IggyClient,
+        consumer_name: &str,
+        stream_id: String,
+        topic_id: String,
+    ) -> Result<MessageConsumer, IggyError> {
+        MessageConsumer::from_client(&iggy_client, consumer_name, stream_id, topic_id).await
+    }
+
+    /// Builds a `MessageProducer` using the provided `IggyClient` and identifiers.
+    ///
+    /// # Arguments
+    ///
+    /// * `iggy_client` - The `IggyClient` to use for authentication and communication.
+    /// * `stream_id` - The identifier of the stream.
+    /// * `topic_id` - The identifier of the topic.
+    ///
+    /// # Returns
+    ///
+    /// A `Result` wrapping the `MessageProducer` instance or an `IggyError`.
+    ///
+    /// # Errors
+    ///
+    /// * `IggyError::InvalidIdentifier` - If the provided stream or topic identifier is invalid.
+    /// * `IggyError::AuthenticationError` - If authentication with the client fails.
+    /// * `IggyError::ConnectionError` - If a connection to the client could not be established.
+    /// * `IggyError::CommandLengthError` - If the length of a command is invalid.
+    ///
+    pub async fn build_producer(
+        iggy_client: &IggyClient,
+        stream_id: String,
+        topic_id: String,
+    ) -> Result<MessageProducer, IggyError> {
+        MessageProducer::from_client(&iggy_client, stream_id, topic_id).await
+    }
 }
 
+// Getters
 impl IggyBuilder {
     /// Returns a reference to the `MessageProducer` created for this client.
     pub fn iggy_producer(&self) -> &MessageProducer {

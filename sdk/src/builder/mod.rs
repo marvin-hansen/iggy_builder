@@ -16,7 +16,6 @@ pub use crate::builder::config::*;
 pub use crate::builder::event_consumer::*;
 pub use crate::builder::event_producer::*;
 
-
 pub struct IggyBuilder {
     iggy_producer: MessageProducer,
     iggy_consumer: MessageConsumer,
