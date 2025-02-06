@@ -79,9 +79,11 @@ The SDK is built around several core components:
 - `IggyBuilder`: Main entry point for creating producers and consumers
 - `MessageProducer`: Handles message publishing
 - `MessageConsumer`: Manages message consumption
-- `EventProcessor`: Processes incoming messages
-- `EventConsumer`: Consumes events from topics
+- `EventProducer`: Trait to implement a producer for sending out messages
+- `EventConsumer`: Trait to implement a consumer for incoming messages
 
+The MessageProducer already implements EventProducer, which allows you to use it as a default producer.
+However, you can replace it with a custom producer by implementing the `EventProducer` trait.
 
 ## Contributing
 
