@@ -5,10 +5,10 @@ use iggy::error::IggyError;
 
 mod builder;
 pub mod config;
-mod event_consumer;
-mod event_producer;
-mod message_consumer;
-mod message_producer;
+pub mod event_consumer;
+pub mod event_producer;
+pub mod message_consumer;
+pub mod message_producer;
 mod utils;
 
 // Re-exports
