@@ -21,7 +21,7 @@ Add this to your `Cargo.toml`:
 
 ```toml
 [dependencies]
-sdk = "0.6.93"
+sdk = { git = "https://github.com/marvin-hansen/iggy_builder.git", branch = "main" }
 ```
 
 ## Quick Start
