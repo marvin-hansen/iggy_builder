@@ -4,7 +4,7 @@
 [![Crates.io](https://img.shields.io/crates/v/sdk.svg)](https://crates.io/crates/sdk)
 [![Rust](https://img.shields.io/badge/rust-2021_edition-orange.svg)](https://www.rust-lang.org)
 
-A high-level SDK for building applications with [Iggy](https://iggy.rs), a persistent message streaming platform. This SDK provides an ergonomic builder pattern for creating message producers and consumers with minimal boilerplate.
+A high-level SDK for building applications rapidly with [Iggy](https://iggy.rs), a persistent message streaming platform. This SDK provides an ergonomic builder pattern for creating message producers and consumers with minimal boilerplate.
 
 ## Features
 
@@ -12,7 +12,6 @@ A high-level SDK for building applications with [Iggy](https://iggy.rs), a persi
 - 🔧 Configurable message producers and consumers
 - 🔄 Async/await support
 - 🛡️ Type-safe message handling
-- 📦 Built-in connection management
 - 🎯 Stream and topic abstraction
 
 ## Installation
