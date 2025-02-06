@@ -15,6 +15,8 @@ mod utils;
 pub use crate::builder::config::*;
 pub use crate::builder::event_consumer::*;
 pub use crate::builder::event_producer::*;
+pub use crate::builder::message_consumer::*;
+pub use crate::builder::message_producer::*;
 
 pub struct IggyBuilder {
     iggy_producer: MessageProducer,
