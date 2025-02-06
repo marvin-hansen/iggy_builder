@@ -1,4 +1,3 @@
-use crate::builder::config::{Args, IggyConfig};
 use crate::builder::message_consumer::MessageConsumer;
 use crate::builder::message_producer::MessageProducer;
 use iggy::clients::client::IggyClient;
@@ -11,6 +10,12 @@ mod event_processor;
 mod message_consumer;
 mod message_producer;
 mod utils;
+
+// Re-exports
+pub use crate::builder::config::*;
+pub use crate::builder::event_consumer::*;
+pub use crate::builder::event_processor::*;
+
 
 pub struct IggyBuilder {
     iggy_producer: MessageProducer,
@@ -39,8 +44,8 @@ impl IggyBuilder {
     /// * `IggyError::InvalidConfiguration` - The `IggyConfig` is invalid.
     /// * `IggyError::ConnectionError` - Failed to create the underlying TCP client.
     ///
-    pub async fn from_config(iggy_config: IggyConfig) -> Result<(IggyClient, Self), IggyError> {
-        Self::build(Some(&iggy_config), None).await
+    pub async fn from_config(iggy_config: &IggyConfig) -> Result<(IggyClient, Self), IggyError> {
+        Self::build(Some(iggy_config), None).await
     }
 
     /// Creates a new `IggyBuilder` from the given iggy `Args`.
