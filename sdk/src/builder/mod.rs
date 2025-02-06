@@ -28,6 +28,7 @@ impl IggyBuilder {
     /// * The iggy client is connected and logged in after build.
     /// * The iggy producer and consumer using the same stream and topic.
     /// * The iggy consumer is set to consume last message by default i.e. no resend.
+    /// * The iggy consumer requires an implementation of the `EventConsumer` trait to run.
     ///
     /// # Args
     ///
@@ -53,6 +54,7 @@ impl IggyBuilder {
     /// * The iggy client is connected and logged in after build.
     /// * The iggy producer and consumer using the same stream and topic.
     /// * The iggy consumer is set to consume last message by default i.e. no resend.
+    /// * The iggy consumer requires an implementation of the `EventConsumer` trait to run.
     ///
     /// # Args
     ///
