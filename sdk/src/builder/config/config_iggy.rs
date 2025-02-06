@@ -128,6 +128,25 @@ impl IggyConfig {
     }
 }
 
+impl Default for IggyConfig {
+    fn default() -> Self {
+        Self {
+            user: IggyUser::default(),
+            stream_id: Identifier::numeric(1).unwrap(),
+            stream_name: "default_stream".to_string(),
+            stream_partition_count: 1,
+            topic_id: Identifier::numeric(1).unwrap(),
+            topic_name: "default_topic".to_string(),
+            partition_id: 1,
+            messages_per_batch: 1,
+            auto_commit: true,
+            tcp_server_addr: Some("localhost:8090".to_string()),
+            tcp_tls_config: None,
+            message_consumer_name: "default_consumer".to_string(),
+        }
+    }
+}
+
 impl Display for IggyConfig {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         write!(
