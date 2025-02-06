@@ -5,8 +5,8 @@ use iggy::error::IggyError;
 
 mod builder;
 pub mod config;
-pub mod event_consumer;
-pub mod event_producer;
+mod event_consumer;
+mod event_producer;
 pub mod message_consumer;
 pub mod message_producer;
 mod utils;
