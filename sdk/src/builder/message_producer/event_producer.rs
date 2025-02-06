@@ -1,4 +1,4 @@
-use crate::builder::event_processor::EventProcessor;
+use crate::builder::event_producer::EventProducer;
 use crate::builder::message_producer::MessageProducer;
 use async_trait::async_trait;
 use iggy::error::IggyError;
@@ -6,7 +6,7 @@ use iggy::messages::send_messages::Message;
 use tracing::error;
 
 #[async_trait]
-impl EventProcessor for MessageProducer {
+impl EventProducer for MessageProducer {
     /// Sends a single event to the target topic.
     ///
     /// # Arguments

@@ -6,7 +6,7 @@ use iggy::error::IggyError;
 mod builder;
 pub mod config;
 mod event_consumer;
-mod event_processor;
+mod event_producer;
 mod message_consumer;
 mod message_producer;
 mod utils;
@@ -14,7 +14,7 @@ mod utils;
 // Re-exports
 pub use crate::builder::config::*;
 pub use crate::builder::event_consumer::*;
-pub use crate::builder::event_processor::*;
+pub use crate::builder::event_producer::*;
 
 
 pub struct IggyBuilder {
