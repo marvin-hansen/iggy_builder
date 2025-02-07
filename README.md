@@ -3,8 +3,8 @@
 [![License](https://img.shields.io/badge/license-Apache%202.0-blue.svg)](LICENSE)
 [![Rust](https://img.shields.io/badge/rust-2021_edition-orange.svg)](https://www.rust-lang.org)
 
-A high-level SDK for building applications rapidly with [Iggy](https://iggy.rs), a persistent message streaming platform. 
-This crate provides an ergonomic builder pattern for creating message producers and consumers with minimal boilerplate.
+Exploration of a new high-level SDK for [Iggy](https://iggy.rs), the persistent message streaming platform. 
+This crate provides an ergonomic builder pattern for creating message clients, producers and consumers with minimal boilerplate.
 
 ## Features
 
