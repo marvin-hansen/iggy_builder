@@ -7,6 +7,17 @@ fn test_new_iggy_user() {
 }
 
 #[test]
+fn test_builder() {
+    let user = IggyUser::builder()
+        .username("test_user".to_string())
+        .password("test_pass".to_string())
+        .build();
+
+    assert_eq!(user.username(), "test_user");
+    assert_eq!(user.password(), "test_pass");
+}
+
+#[test]
 fn test_default_iggy_user() {
     let user = IggyUser::default();
     assert_eq!(user.username(), "iggy");

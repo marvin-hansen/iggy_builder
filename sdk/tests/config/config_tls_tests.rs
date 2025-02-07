@@ -16,6 +16,21 @@ fn test_tcp_tls_config_new() {
 }
 
 #[test]
+fn test_builder() {
+    let config = IggyTcpTLSConfig::builder()
+        .tcp_server_address("127.0.0.1:8090".to_string())
+        .tcp_tls_enabled(true)
+        .tcp_tls_domain("example.com".to_string())
+        .tcp_tls_ca_file("ca.pem".to_string())
+        .build();
+
+    assert_eq!(config.tcp_server_address(), "127.0.0.1:8090");
+    assert!(config.tcp_tls_enabled());
+    assert_eq!(config.tcp_tls_domain(), "example.com");
+    assert_eq!(config.tcp_tls_ca_file(), &Some("ca.pem".to_string()));
+}
+
+#[test]
 fn test_tcp_tls_config_default() {
     let config = IggyTcpTLSConfig::default();
     assert_eq!(config.tcp_server_address(), "127.0.0.1:8090");

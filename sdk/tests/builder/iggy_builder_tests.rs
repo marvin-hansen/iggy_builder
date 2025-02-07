@@ -3,6 +3,7 @@ use iggy::messages::send_messages::Message;
 use sdk::builder::config::IggyConfig;
 use sdk::builder::{EventConsumer, EventConsumerError, IggyBuilder, IggyUser};
 use std::str::FromStr;
+use iggy::identifier::Identifier;
 use tokio_util::sync::CancellationToken;
 
 //
@@ -58,20 +59,19 @@ async fn test_iggy_builder() {
 }
 
 fn iggy_config() -> IggyConfig {
-    IggyConfig::new(
-        IggyUser::default(),
-        42,
-        "stream_42".to_string(),
-        1,
-        23,
-        "topic_23".to_string(),
-        Some("localhost:8090".to_string()),
-        None, // No TLS config for this test
-        1,
-        "consumer_data".to_string(),
-        1,
-        true,
-    )
+ IggyConfig::builder()
+        .user(IggyUser::default())
+        .stream_id(Identifier::numeric(42).unwrap())
+        .stream_name("stream_42".to_string())
+        .stream_partition_count(1)
+        .topic_id(Identifier::numeric(23).unwrap())
+        .topic_name("topic_23".to_string())
+        .partition_id(1)
+        .messages_per_batch(1)
+        .auto_commit(true)
+        .tcp_server_addr("localhost:8090".to_string())
+        .message_consumer_name("consumer_data".to_string())
+        .build()
 }
 
 #[derive(Debug)]

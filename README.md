@@ -64,6 +64,33 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 }
 ```
 
+## Configuration 
+
+The builder pattern extents to the configuration which means defining a custom IggyConfig is as simple as:
+
+```rust
+use sdk::builder::IggyConfig;
+
+let user = IggyUser::builder()
+        .username("iggy".to_string())
+        .password("iggy".to_string())
+        .build();  
+
+let iggy_config = IggyConfig::builder()
+        .user(user)
+        .stream_id(Identifier::numeric(42).unwrap())
+        .stream_name("stream_42".to_string())
+        .stream_partition_count(1)
+        .topic_id(Identifier::numeric(23).unwrap())
+        .topic_name("topic_23".to_string())
+        .partition_id(1)
+        .messages_per_batch(10)
+        .auto_commit(true)
+        .tcp_server_addr("localhost:8090".to_string())
+        .message_consumer_name("consumer_data".to_string())
+        .build()
+```  
+
 ## Configuration
 
 The SDK provides flexible configuration options through the `IggyConfig` struct:
