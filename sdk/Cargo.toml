@@ -6,6 +6,7 @@ license = "Apache-2.0"
 
 
 [dependencies]
+bon= "3.3"
 futures = "0.3"
 futures-util = "0.3"
 iggy = {version = "0.6"}

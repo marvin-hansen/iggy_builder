@@ -1,6 +1,7 @@
+use bon::Builder;
 use std::fmt;
 
-#[derive(Debug, PartialEq, Clone)]
+#[derive(Builder, Debug, PartialEq, Clone)]
 pub struct IggyUser {
     username: String,
     password: String,

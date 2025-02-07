@@ -1,4 +1,3 @@
-
 use crate::builder::config::Args;
 use iggy::clients::client::IggyClient;
 use iggy::clients::consumer::{AutoCommit, AutoCommitWhen, IggyConsumer};
@@ -94,13 +93,13 @@ impl MessageConsumer {
                 client.consumer_group(consumer_name, &args.stream_id, &args.topic_id)?
             }
         }
-            .auto_commit(AutoCommit::When(AutoCommitWhen::PollingMessages))
-            .create_consumer_group_if_not_exists()
-            .auto_join_consumer_group()
-            .polling_strategy(PollingStrategy::last())
-            .poll_interval(poll_interval)
-            .batch_size(args.messages_per_batch)
-            .build();
+        .auto_commit(AutoCommit::When(AutoCommitWhen::PollingMessages))
+        .create_consumer_group_if_not_exists()
+        .auto_join_consumer_group()
+        .polling_strategy(PollingStrategy::last())
+        .poll_interval(poll_interval)
+        .batch_size(args.messages_per_batch)
+        .build();
 
         match consumer.init().await {
             Ok(_) => {}

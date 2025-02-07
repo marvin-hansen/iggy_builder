@@ -1,6 +1,7 @@
+use bon::Builder;
 use std::fmt::Display;
 
-#[derive(Debug, Clone, Eq, PartialEq)]
+#[derive(Builder, Debug, Clone, Eq, PartialEq)]
 pub struct IggyTcpTLSConfig {
     // The  client address for the TCP transport
     tcp_server_address: String,

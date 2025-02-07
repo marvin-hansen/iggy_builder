@@ -2,16 +2,16 @@ use crate::builder::config::{Args, IggyConfig};
 use std::fmt::{Display, Formatter};
 
 #[derive(Debug, Clone, Eq, PartialEq)]
-pub(crate) struct ConfigFields {
-    consumer_name: String,
-    stream_id: String,
-    topic_id: String,
-    username: String,
-    password: String,
+pub struct ConfigFields {
+    pub consumer_name: String,
+    pub stream_id: String,
+    pub topic_id: String,
+    pub username: String,
+    pub password: String,
 }
 
 impl ConfigFields {
-    pub(crate) fn from_iggy_config(iggy_config: &IggyConfig) -> Self {
+    pub fn from_iggy_config(iggy_config: &IggyConfig) -> Self {
         Self {
             consumer_name: iggy_config.message_consumer_name().to_string(),
             stream_id: iggy_config.stream_name().to_string(),
@@ -21,7 +21,7 @@ impl ConfigFields {
         }
     }
 
-    pub(crate) fn from_args(args: Args, consumer_name: String) -> Self {
+    pub fn from_args(args: Args, consumer_name: String) -> Self {
         Self {
             consumer_name,
             stream_id: args.stream_id,
@@ -33,23 +33,23 @@ impl ConfigFields {
 }
 
 impl ConfigFields {
-    pub(crate) fn consumer_name(&self) -> &str {
+    pub fn consumer_name(&self) -> &str {
         &self.consumer_name
     }
 
-    pub(crate) fn stream_id(&self) -> &str {
+    pub fn stream_id(&self) -> &str {
         &self.stream_id
     }
 
-    pub(crate) fn topic_id(&self) -> &str {
+    pub fn topic_id(&self) -> &str {
         &self.topic_id
     }
 
-    pub(crate) fn username(&self) -> &str {
+    pub fn username(&self) -> &str {
         &self.username
     }
 
-    pub(crate) fn password(&self) -> &str {
+    pub fn password(&self) -> &str {
         &self.password
     }
 }

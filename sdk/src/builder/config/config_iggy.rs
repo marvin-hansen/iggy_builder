@@ -1,11 +1,12 @@
 use std::fmt::{Display, Formatter};
 
 use crate::builder::config::{IggyTcpTLSConfig, IggyUser};
+use bon::Builder;
 use iggy::identifier::Identifier;
 
 /// Configuration for Iggy, containing user information, stream and topic identifiers,
 /// server address, partition details, and message handling settings.
-#[derive(Debug, PartialEq, Clone)]
+#[derive(Builder, Debug, PartialEq, Clone)]
 pub struct IggyConfig {
     user: IggyUser,
     stream_id: Identifier,
