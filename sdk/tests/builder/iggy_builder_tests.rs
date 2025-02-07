@@ -1,9 +1,9 @@
 use iggy::client::Client;
+use iggy::identifier::Identifier;
 use iggy::messages::send_messages::Message;
 use sdk::builder::config::IggyConfig;
 use sdk::builder::{EventConsumer, EventConsumerError, IggyBuilder, IggyUser};
 use std::str::FromStr;
-use iggy::identifier::Identifier;
 use tokio_util::sync::CancellationToken;
 
 //
@@ -59,7 +59,7 @@ async fn test_iggy_builder() {
 }
 
 fn iggy_config() -> IggyConfig {
- IggyConfig::builder()
+    IggyConfig::builder()
         .user(IggyUser::default())
         .stream_id(Identifier::numeric(42).unwrap())
         .stream_name("stream_42".to_string())
