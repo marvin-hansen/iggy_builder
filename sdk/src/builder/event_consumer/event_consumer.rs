@@ -1,4 +1,5 @@
 use crate::builder::event_consumer::EventConsumerError;
+use iggy::models::messages::PolledMessage;
 
 /// Trait for event consumer
 #[allow(dead_code)] // Clippy can't see that the trait is used
@@ -13,7 +14,7 @@ pub trait LocalEventConsumer {
     /// # Errors
     ///
     /// * `EventConsumerError` - If the event consumer fails to consume the event
-    async fn consume(&self, data: Vec<u8>) -> Result<(), EventConsumerError>;
+    async fn consume(&self, message: PolledMessage) -> Result<(), EventConsumerError>;
 }
 
 // Default implementation for `&T`
@@ -28,7 +29,7 @@ impl<T: EventConsumer + Send + Sync> EventConsumer for &T {
     /// # Errors
     ///
     /// * `EventConsumerError` - If the event consumer fails to consume the event
-    async fn consume(&self, data: Vec<u8>) -> Result<(), EventConsumerError> {
-        (**self).consume(data).await
+    async fn consume(&self, message: PolledMessage) -> Result<(), EventConsumerError> {
+        (**self).consume(message).await
     }
 }

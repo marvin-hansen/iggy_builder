@@ -26,6 +26,8 @@ sdk = { git = "https://github.com/marvin-hansen/iggy_builder.git", branch = "mai
 
 ## Quick Start
 
+Find a full example in the [tests](sdk/tests/builder/iggy_builder_tests.rs) directory.
+
 ```rust
 use sdk::builder::{IggyBuilder, IggyConfig};
 
@@ -50,7 +52,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     });
     
     // Send a message
-     let payload = "hello world";
+    let payload = "Hello Iggy";
     let message = Message::from_str(payload).expect("Failed to create test message"); 
     message_producer.producer().send_one(message).await?;
      
@@ -91,14 +93,35 @@ let iggy_config = IggyConfig::builder()
         .build()
 ```  
 
-## Configuration
+## Message Processing
 
-The SDK provides flexible configuration options through the `IggyConfig` struct:
+To process messages received from the consumer, you implement the `EventConsumer` trait,
+pass it to the `consume_messages` method of the MessageConsumer, which then starts to consume messages
+from the configured stream.
 
-- Connection settings
-- Stream and topic configuration
-- Consumer group settings
-- Message handling options
+```rust
+use sdk::builder::{EventConsumer, EventConsumerError};
+
+struct PrintEventConsumer;
+
+impl EventConsumer for PrintEventConsumer {
+    async fn consume(&self, message: PolledMessage) -> Result<(), EventConsumerError> {
+        // Message payload is just a continuous slice of memory hence zero copy access.
+        let raw_message = message.payload.as_ref();
+
+        // convert raw bytes into string
+        let message = String::from_utf8_lossy(raw_message);
+
+        // Print message to stdout
+        println!("Message received: {}", message);
+
+        Ok(())
+    }
+}  
+```
+ 
+  
+  
 
 ## Architecture
 

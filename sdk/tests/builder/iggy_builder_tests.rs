@@ -1,6 +1,7 @@
 use iggy::client::Client;
 use iggy::identifier::Identifier;
 use iggy::messages::send_messages::Message;
+use iggy::models::messages::PolledMessage;
 use sdk::builder::config::IggyConfig;
 use sdk::builder::{EventConsumer, EventConsumerError, IggyBuilder, IggyUser};
 use std::str::FromStr;
@@ -41,7 +42,7 @@ async fn test_iggy_builder() {
     println!("✅ iggy consumer started");
 
     println!("Send a test message via producer");
-    let payload = "hello world";
+    let payload = "Hello Iggy";
     let message = Message::from_str(payload).expect("Failed to create test message");
 
     let res = message_producer.producer().send_one(message).await;
@@ -78,15 +79,18 @@ fn iggy_config() -> IggyConfig {
 struct PrintEventConsumer {}
 
 impl EventConsumer for PrintEventConsumer {
-    async fn consume(&self, data: Vec<u8>) -> Result<(), EventConsumerError> {
-        // convert message into raw bytes
-        let raw_message = data.as_slice();
+    async fn consume(&self, message: PolledMessage) -> Result<(), EventConsumerError> {
+        // Message payload is just a continuous slice of memory hence zero copy access.
+        let raw_message = message.payload.as_ref();
 
-        // convert into raw string
+        // convert raw bytes into string
         let message = String::from_utf8_lossy(raw_message);
 
         // Print message to stdout
-        println!("[PrintEventConsumer] Message received: {}", message);
+        println!("###################");
+        println!("[PrintEventConsumer]");
+        println!("Message received: {}", message);
+        println!("###################");
 
         Ok(())
     }

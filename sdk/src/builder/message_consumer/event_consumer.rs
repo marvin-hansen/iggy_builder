@@ -49,10 +49,10 @@ impl MessageConsumer {
                 match received_message {
 
                     // Message received, process it
-                    Some(Ok(message)) => {
+                    Some(Ok(received_message)) => {
 
                         match event_processor
-                            .consume(message.message.payload.into())
+                            .consume(received_message.message)
                             .await{
                                 Ok(()) => {}
                                 Err(err) => {
