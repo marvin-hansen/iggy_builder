@@ -13,8 +13,6 @@ use tracing::error;
 
 #[derive(Clone)]
 pub struct MessageProducer {
-    stream_id: Identifier,
-    topic_id: Identifier,
     producer: Arc<IggyProducer>,
 }
 
@@ -43,28 +41,6 @@ impl MessageProducer {
 
 impl MessageProducer {
     async fn build(args: Args, client: &IggyClient) -> Result<Self, IggyError> {
-        let stream_id = match Identifier::from_str_value(&args.stream_id) {
-            Ok(id) => id,
-            Err(err) => {
-                error!(
-                    "Failed to parse stream id for producer due to error: {}",
-                    err
-                );
-                return Err(err);
-            }
-        };
-
-        let topic_id = match Identifier::from_str_value(&args.topic_id) {
-            Ok(id) => id,
-            Err(err) => {
-                error!(
-                    "Failed to parse topic id for producer due to error: {}",
-                    err
-                );
-                return Err(err);
-            }
-        };
-
         let send_interval = match IggyDuration::from_str(&args.interval) {
             Ok(interval) => interval,
             Err(err) => {
@@ -100,8 +76,6 @@ impl MessageProducer {
         };
 
         Ok(Self {
-            stream_id,
-            topic_id,
             producer: Arc::new(producer),
         })
     }
@@ -109,18 +83,6 @@ impl MessageProducer {
 
 // Getters
 impl MessageProducer {
-    /// Returns a reference to the stream identifier.
-    #[inline]
-    pub const fn stream_id(&self) -> &Identifier {
-        &self.stream_id
-    }
-
-    /// Returns a reference to the topic identifier.
-    #[inline]
-    pub const fn topic_id(&self) -> &Identifier {
-        &self.topic_id
-    }
-
     /// Returns a reference to the `IggyProducer`.
     #[inline]
     pub fn producer(&self) -> &IggyProducer {

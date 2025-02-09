@@ -9,7 +9,7 @@ use iggy::messages::send_messages::Partitioning;
 use iggy::utils::crypto::EncryptorKind;
 use tracing::error;
 
-#[derive(Builder, Debug,Clone)]
+#[derive(Debug,Clone)]
 pub struct IggyStreamConfig {
     stream_id: Identifier,
     stream_name: String,
@@ -39,10 +39,6 @@ impl IggyStreamConfig {
     /// * `polling_interval` - The interval between polling for new messages.
     /// * `polling_strategy` - The polling strategy to use.
     ///
-    /// # Errors
-    ///
-    /// * `IggyError::InvalidIdentifier` - If the provided stream or topic identifier is invalid.
-    ///
     /// Returns:
     /// A new `IggyStreamConfig`.
     ///
@@ -53,7 +49,7 @@ impl IggyStreamConfig {
         send_interval: IggyDuration,
         polling_interval: IggyDuration,
         polling_strategy: PollingStrategy,
-    ) -> Result<Self, IggyError> {
+    ) -> Self {
 
         let stream_id = match Identifier::from_str_value(stream) {
             Ok(id) => id,
@@ -77,7 +73,7 @@ impl IggyStreamConfig {
 
         let consumer_group_name = format!("consumer-group-{}-{}", stream, topic);
 
-        Ok(Self {
+        Self {
             stream_id,
             stream_name: stream.to_string(),
             topic_id,
@@ -92,7 +88,7 @@ impl IggyStreamConfig {
             partitioning: Partitioning::balanced(),
             partitions_count: 1,
             replication_factor: None,
-        })
+        }
     }
 
     /// Creates a fully customized `IggyStreamConfig` with all fields defined.
