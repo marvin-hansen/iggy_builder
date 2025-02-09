@@ -9,7 +9,6 @@ use std::sync::Arc;
 pub struct IggyStream {
     iggy_producer: Arc<IggyProducer>,
     iggy_consumer: IggyConsumer,
-    config: IggyStreamConfig,
     stream_id: Identifier,
     topic_id: Identifier,
 }
@@ -29,7 +28,6 @@ impl IggyStream {
         Ok(Self {
             iggy_producer: Arc::new(iggy_producer),
             iggy_consumer,
-            config: config.to_owned(),
             stream_id: config.stream_id().to_owned(),
             topic_id: config.topic_id().to_owned(),
         })
@@ -41,12 +39,6 @@ impl IggyStream {
     #[inline]
     pub const fn stream_id(&self) -> &Identifier {
         &self.stream_id
-    }
-
-    /// Returns a reference to the topic identifier.
-    #[inline]
-    pub const fn topic_id(&self) -> &Identifier {
-        &self.topic_id
     }
 
     /// Returns a mutable reference to the 'IggyConsumer'.

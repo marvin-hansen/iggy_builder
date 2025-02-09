@@ -1,4 +1,3 @@
-use bon::Builder;
 use iggy::error::IggyError;
 use iggy::identifier::Identifier;
 use iggy::messages::poll_messages::PollingStrategy;
