@@ -25,23 +25,28 @@ sdk = { git = "https://github.com/marvin-hansen/iggy_builder.git", branch = "mai
 
 ## Quick Start
 
-Find a full example in the [tests](sdk/tests/builder/iggy_builder_tests.rs) directory.
+Find a full example in the [examples](examples) directory.
 
 ```rust
+use iggy::client::Client;
+use iggy::models::messages::PolledMessage;
+use sdk::builder::*;
+use std::str::FromStr;
+use tokio_util::sync::CancellationToken; 
 const IGGY_URL: &str = "iggy://iggy:iggy@localhost:8090";
  
 #[tokio::main]
-async fn main() -> Result<(), Box<dyn std::error::Error>> {
+async fn main() -> Result<(), IggyError> {
+    println!("Build iggy client and connect it.");
+    let  iggy_client = build_and_connect_iggy_client(IGGY_URL).await?;
+    iggy_client.connect().await?;
 
-    // Build iggy client and connect it.
-    let iggy_client = IggyClient::from_connection_string(IGGY_URL).unwrap().connect().await.unwrap();
-    
-    // Build iggy stream & producer    
+    println!("Build iggy stream & producer");
     let stream_config = stream_config();
-    let iggy_stream =  IggyStream::new(&iggy_client, &stream_config).await.unwrap;
+    let iggy_stream =  IggyStream::new(&iggy_client, &stream_config).await?;
     let message_producer = iggy_stream.producer().to_owned();
-    
-    // Start message stream   
+
+    println!("Start message stream");
     let token = CancellationToken::new();
     let token_consumer = token.clone();
     tokio::spawn(async move {
@@ -54,22 +59,18 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                 eprintln!("Failed to consume messages: {err}");
             }
         }
-    });  
- 
-    // Send a test message
-    let payload = "Hello Iggy";
-    let message = Message::from_str(payload).expect("Failed to create test message").unwrap;
+    });
 
-    // Stop the message stream  
+    println!("Send a test message");
+    let message = Message::from_str("Hello Iggy")?;
+    message_producer.send_one(message).await?;
+
+    println!("Stop the message stream and iggy client");
     token_consumer.cancel();
-    println!("✅ iggy consumer stopped");
+    iggy_client.shutdown().await?;
 
-    // Sop the iggy client 
-    let res = iggy_client.shutdown().await;
-  
-    Ok(()) 
-}  
-
+    Ok(())
+}
 ```
 
 ## Configuration 

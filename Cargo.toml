@@ -1,8 +1,10 @@
 [workspace]
 resolver = "2"
 members = [
+    "examples",
     "sdk",
 ]
+
 
 [workspace.metadata.cargo-machete]
 ignored = ["openssl"]

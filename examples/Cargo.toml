@@ -1,0 +1,16 @@
+[package]
+name = "iggy_examples"
+version = "0.0.5"
+edition = "2021"
+license = "Apache-2.0"
+
+[[example]]
+name = "stream-basic"
+path = "src/stream-basic/main.rs"
+
+
+[dependencies]
+sdk = { path = "../sdk" }
+iggy = { version = "0.6" }
+tokio = "1.40"
+tokio-util = "0.7"
