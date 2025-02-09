@@ -61,6 +61,7 @@ impl IggyStream {
                         };
                     }
 
+                    // E{or received, handle it
                     Some(Err(err)) => {
                         match err {
                             IggyError::Disconnected => {
@@ -98,7 +99,7 @@ impl IggyStream {
 
                     } // end Some(error)
 
-                    // No message  received, continue
+                    // Nothing received, continue
                     None => {}
 
                 } // end received_message

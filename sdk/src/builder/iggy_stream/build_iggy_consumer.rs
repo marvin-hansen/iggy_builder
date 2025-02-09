@@ -6,10 +6,27 @@ use iggy::error::IggyError;
 use tracing::error;
 
 impl IggyStream {
+    /// Builds an `IggyConsumer` from the given `IggyClient` and `IggyStreamConfig`.
+    ///
+    /// # Arguments
+    ///
+    /// * `client` - The `IggyClient` to use.
+    /// * `stream_config` - The `IggyStreamConfig` to use.
+    ///
+    /// # Errors
+    ///
+    /// * `IggyError` - If the iggy consumer cannot be build.
+    ///
+    /// # Details
+    ///
+    /// This function will create a new `IggyConsumer` with the given `IggyClient` and `IggyStreamConfig`.
+    /// The `IggyStreamConfig` fields are used to configure the `IggyConsumer`.
+    ///
     pub(crate) async fn build_iggy_consumer(
         client: &IggyClient,
         stream_config: &IggyStreamConfig,
     ) -> Result<IggyConsumer, IggyError> {
+        // Extract config fields.
         let consumer_group_name = stream_config.consumer_group_name();
         let stream = stream_config.stream_name();
         let topic = stream_config.topic_name();
@@ -17,6 +34,7 @@ impl IggyStream {
         let polling_interval = stream_config.polling_interval();
         let polling_strategy = stream_config.polling_strategy();
 
+        // Build consumer.
         let mut consumer = client
             .consumer_group(consumer_group_name, stream, topic)?
             .auto_commit(AutoCommit::IntervalOrWhen(

@@ -26,6 +26,31 @@ pub struct IggyStreamConfig {
     replication_factor: Option<u8>,
 }
 
+impl Default for IggyStreamConfig {
+    /// Creates a default `IggyStreamConfig`.
+    fn default() -> Self {
+        let stream = "test_stream";
+        let topic = "test_topic";
+        let consumer_group_name = format!("consumer-group-{}-{}", stream, topic);
+
+        Self {
+            stream_id: Identifier::from_str_value(stream).unwrap(),
+            stream_name: stream.to_string(),
+            topic_id: Identifier::from_str_value(topic).unwrap(),
+            topic_name: topic.to_string(),
+            batch_size: 100,
+            consumer_group_name,
+            encryptor: None,
+            send_interval: IggyDuration::from_str("1ms").unwrap(),
+            polling_interval: IggyDuration::from_str("1ms").unwrap(),
+            polling_strategy: PollingStrategy::last(),
+            partitions_count: 0,
+            partitioning: Partitioning::balanced(),
+            replication_factor: None,
+        }
+    }
+}
+
 impl IggyStreamConfig {
     /// Creates a new `IggyStreamConfig` from the given arguments.
     ///
@@ -143,6 +168,7 @@ impl IggyStreamConfig {
     }
 }
 
+// Getters.
 impl IggyStreamConfig {
     pub fn stream_id(&self) -> &Identifier {
         &self.stream_id
@@ -194,29 +220,5 @@ impl IggyStreamConfig {
 
     pub fn consumer_group_name(&self) -> &str {
         &self.consumer_group_name
-    }
-}
-
-impl Default for IggyStreamConfig {
-    fn default() -> Self {
-        let stream = "test_stream";
-        let topic = "test_topic";
-        let consumer_group_name = format!("consumer-group-{}-{}", stream, topic);
-
-        Self {
-            stream_id: Identifier::from_str_value(stream).unwrap(),
-            stream_name: stream.to_string(),
-            topic_id: Identifier::from_str_value(topic).unwrap(),
-            topic_name: topic.to_string(),
-            batch_size: 100,
-            consumer_group_name,
-            encryptor: None,
-            send_interval: IggyDuration::from_str("1ms").unwrap(),
-            polling_interval: IggyDuration::from_str("1ms").unwrap(),
-            polling_strategy: PollingStrategy::last(),
-            partitions_count: 0,
-            partitioning: Partitioning::balanced(),
-            replication_factor: None,
-        }
     }
 }

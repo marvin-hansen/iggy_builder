@@ -48,12 +48,14 @@ impl IggyStream {
     }
 
     /// Returns a mutable reference to the 'IggyConsumer'.
-    pub fn consumer_mut(&mut self) -> &mut IggyConsumer {
+    #[inline]
+    pub const fn consumer_mut(&mut self) -> &mut IggyConsumer {
         &mut self.iggy_consumer
     }
 
     /// Returns a reference to the `IggyProducer`.
-    pub fn producer(&self) -> &Arc<IggyProducer> {
+    #[inline]
+    pub const fn producer(&self) -> &Arc<IggyProducer> {
         &self.iggy_producer
     }
 }

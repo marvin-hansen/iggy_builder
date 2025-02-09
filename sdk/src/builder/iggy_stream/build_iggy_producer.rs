@@ -8,10 +8,27 @@ use iggy::utils::topic_size::MaxTopicSize;
 use tracing::error;
 
 impl IggyStream {
+    /// Build a producer from the stream configuration.
+    ///
+    /// # Arguments
+    ///
+    /// * `client` - The Iggy client.
+    /// * `stream_config` - The stream configuration.
+    ///
+    /// # Errors
+    ///
+    /// * `IggyError` - If the iggy producer cannot be build.
+    ///
+    /// # Details
+    ///
+    /// This function will create a new `IggyProducer` with the given `IggyClient` and `IggyStreamConfig`.
+    /// The `IggyStreamConfig` fields are used to configure the `IggyProducer`.
+    ///
     pub(crate) async fn build_iggy_producer(
         client: &IggyClient,
         stream_config: &IggyStreamConfig,
     ) -> Result<IggyProducer, IggyError> {
+        // Extract config fields.
         let stream = stream_config.stream_name();
         let topic = stream_config.topic_name();
         let batch_size = stream_config.batch_size();
@@ -20,6 +37,7 @@ impl IggyStream {
         let partitioning = stream_config.partitioning();
         let replication_factor = stream_config.replication_factor();
 
+        // Build producer.
         let mut producer = client
             .producer(stream, topic)?
             .batch_size(batch_size)
