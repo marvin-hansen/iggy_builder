@@ -39,8 +39,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     // Build iggy stream & producer    
     let stream_config = stream_config();
     let iggy_stream =  IggyStream::new(&iggy_client, &stream_config).await.unwrap;
-
-     let message_producer = iggy_stream.producer().to_owned();
+    let message_producer = iggy_stream.producer().to_owned();
     
     // Start message stream   
     let token = CancellationToken::new();
