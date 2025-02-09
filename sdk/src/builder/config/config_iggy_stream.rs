@@ -1,15 +1,15 @@
 use bon::Builder;
-use iggy::identifier::Identifier;
-use iggy::utils::duration::IggyDuration;
-use std::str::FromStr;
-use std::sync::Arc;
 use iggy::error::IggyError;
+use iggy::identifier::Identifier;
 use iggy::messages::poll_messages::PollingStrategy;
 use iggy::messages::send_messages::Partitioning;
 use iggy::utils::crypto::EncryptorKind;
+use iggy::utils::duration::IggyDuration;
+use std::str::FromStr;
+use std::sync::Arc;
 use tracing::error;
 
-#[derive(Debug,Clone)]
+#[derive(Debug, Clone)]
 pub struct IggyStreamConfig {
     stream_id: Identifier,
     stream_name: String,
@@ -50,25 +50,20 @@ impl IggyStreamConfig {
         polling_interval: IggyDuration,
         polling_strategy: PollingStrategy,
     ) -> Self {
-
         let stream_id = match Identifier::from_str_value(stream) {
             Ok(id) => id,
             Err(err) => {
-                error!(
-                    "Failed to parse stream id due to error: {}",
-                    err
-                );
-                panic!("{}", err.as_string());            }
+                error!("Failed to parse stream id due to error: {}", err);
+                panic!("{}", err.as_string());
+            }
         };
 
         let topic_id = match Identifier::from_str_value(topic) {
             Ok(id) => id,
             Err(err) => {
-                error!(
-                    "Failed to parse topic id due to error: {}",
-                    err
-                );
-                panic!("{}", err.as_string());            }
+                error!("Failed to parse topic id due to error: {}", err);
+                panic!("{}", err.as_string());
+            }
         };
 
         let consumer_group_name = format!("consumer-group-{}-{}", stream, topic);
@@ -204,19 +199,18 @@ impl IggyStreamConfig {
 }
 
 impl Default for IggyStreamConfig {
-     fn default() -> Self {
+    fn default() -> Self {
+        let stream = "test_stream";
+        let topic = "test_topic";
+        let consumer_group_name = format!("consumer-group-{}-{}", stream, topic);
 
-         let stream = "test_stream";
-         let topic = "test_topic";
-         let consumer_group_name = format!("consumer-group-{}-{}", stream, topic);
-
-         Self {
+        Self {
             stream_id: Identifier::from_str_value(stream).unwrap(),
             stream_name: stream.to_string(),
             topic_id: Identifier::from_str_value(topic).unwrap(),
             topic_name: topic.to_string(),
             batch_size: 100,
-             consumer_group_name,
+            consumer_group_name,
             encryptor: None,
             send_interval: IggyDuration::from_str("1ms").unwrap(),
             polling_interval: IggyDuration::from_str("1ms").unwrap(),

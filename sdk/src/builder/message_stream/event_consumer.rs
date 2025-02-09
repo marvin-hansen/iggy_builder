@@ -1,11 +1,10 @@
+use crate::builder::message_stream::IggyStream;
+use crate::builder::EventConsumer;
+use futures_util::StreamExt;
 use iggy::error::IggyError;
 use tokio::select;
 use tokio_util::sync::CancellationToken;
-use crate::builder::EventConsumer;
-use crate::builder::message_stream::IggyStream;
-use futures_util::StreamExt;
 use tracing::error;
-
 
 impl IggyStream {
     /// Consume messages from the underlying consumer and process them

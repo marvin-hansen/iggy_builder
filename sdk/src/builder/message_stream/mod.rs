@@ -1,6 +1,6 @@
-mod message_stream;
-mod build_iggy_producer;
 mod build_iggy_consumer;
+mod build_iggy_producer;
 mod event_consumer;
+mod message_stream;
 
-pub  use message_stream::IggyStream;
+pub use message_stream::IggyStream;

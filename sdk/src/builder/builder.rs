@@ -1,14 +1,11 @@
 use crate::builder::config::{Args, ConfigFields, IggyConfig};
 use crate::builder::message_consumer::MessageConsumer;
 use crate::builder::message_producer::MessageProducer;
-use crate::builder::{utils};
+use crate::builder::utils;
 use iggy::client::{Client, UserClient};
 use iggy::clients::client::IggyClient;
 use iggy::error::IggyError;
 use tracing::error;
-
-
-
 
 pub struct IggyBuilder {
     iggy_producer: MessageProducer,
@@ -71,7 +68,6 @@ impl IggyBuilder {
         Self::build(None, Some((args, consumer_name))).await
     }
 }
-
 
 impl IggyBuilder {
     /// Builds an `IggyClient` and an `IggyBuilder` using the provided configuration or arguments.

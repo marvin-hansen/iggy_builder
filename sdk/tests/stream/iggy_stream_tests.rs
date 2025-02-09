@@ -1,16 +1,16 @@
-use std::str::FromStr;
 use iggy::client::Client;
 use iggy::clients::client::IggyClient;
 use iggy::error::IggyError;
+use iggy::messages::send_messages::Message;
 use iggy::models::messages::PolledMessage;
-use tokio_util::sync::CancellationToken;
 use sdk::builder::{EventConsumer, EventConsumerError, IggyStream, IggyStreamConfig};
+use std::str::FromStr;
+use tokio_util::sync::CancellationToken;
 
 const IGGY_URL: &str = "iggy://iggy:iggy@localhost:8090";
 
 #[tokio::test]
 async fn test_iggy_stream() {
-
     let res = build_and_connect_iggy_client(IGGY_URL).await;
     assert!(res.is_ok());
     let iggy_client = res.unwrap();
@@ -41,13 +41,13 @@ async fn test_iggy_stream() {
     });
     println!("✅ iggy stream started");
 
-    // println!("Send a test message via producer");
-    // let payload = "Hello Iggy";
-    // let message = Message::from_str(payload).expect("Failed to create test message");
-    //
-    // let res = message_producer.send_one(message).await;
-    // assert!(res.is_ok());
-    // println!("✅ test message send");
+    println!("Send a test message via producer");
+    let payload = "Hello Iggy";
+    let message = Message::from_str(payload).expect("Failed to create test message");
+
+    let res = message_producer.send_one(message).await;
+    assert!(res.is_ok());
+    println!("✅ test message send");
 
     println!("Stop iggy consumer");
     token_consumer.cancel();
@@ -58,7 +58,6 @@ async fn test_iggy_stream() {
     assert!(res.is_ok());
     println!("✅ iggy client stopped");
 }
-
 
 fn stream_config() -> IggyStreamConfig {
     IggyStreamConfig::new(
@@ -91,7 +90,7 @@ impl EventConsumer for PrintEventConsumer {
         Ok(())
     }
 }
- async fn build_and_connect_iggy_client(connection_string: &str) -> Result<IggyClient, IggyError> {
+async fn build_and_connect_iggy_client(connection_string: &str) -> Result<IggyClient, IggyError> {
     let iggy_client = match IggyClient::from_connection_string(connection_string) {
         Ok(iggy_client) => iggy_client,
         Err(err) => return Err(err),

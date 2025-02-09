@@ -1,3 +1,5 @@
+use crate::builder::message_stream::IggyStream;
+use crate::builder::IggyStreamConfig;
 use iggy::clients::client::IggyClient;
 use iggy::clients::consumer::{AutoCommit, AutoCommitWhen, IggyConsumer};
 use iggy::clients::producer::IggyProducer;
@@ -5,15 +7,12 @@ use iggy::consumer::ConsumerKind;
 use iggy::error::IggyError;
 use iggy::messages::poll_messages::PollingStrategy;
 use tracing::error;
-use crate::builder::IggyStreamConfig;
-use crate::builder::message_stream::IggyStream;
 
 impl IggyStream {
     pub(crate) async fn build_iggy_consumer(
         client: &IggyClient,
         stream_config: &IggyStreamConfig,
     ) -> Result<IggyConsumer, IggyError> {
-
         let consumer_group_name = stream_config.consumer_group_name();
         let stream = stream_config.stream_name();
         let topic = stream_config.topic_name();
@@ -43,7 +42,5 @@ impl IggyStream {
         }
 
         Ok(consumer)
-
     }
-
 }

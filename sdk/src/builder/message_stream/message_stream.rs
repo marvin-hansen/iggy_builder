@@ -1,13 +1,13 @@
-use std::sync::Arc;
-use crate::builder::{IggyStreamConfig, MessageProducer};
+use crate::builder::IggyStreamConfig;
 use iggy::clients::client::IggyClient;
+use iggy::clients::consumer::IggyConsumer;
 use iggy::clients::producer::IggyProducer;
 use iggy::error::IggyError;
 use iggy::identifier::Identifier;
-use iggy::clients::consumer::IggyConsumer;
+use std::sync::Arc;
 
 pub struct IggyStream {
-    iggy_producer: MessageProducer, // Change this to MessageProducer
+    iggy_producer: Arc<IggyProducer>,
     iggy_consumer: IggyConsumer,
     config: IggyStreamConfig,
     stream_id: Identifier,
@@ -15,30 +15,24 @@ pub struct IggyStream {
 }
 
 impl IggyStream {
-    pub async fn new(
-        client: &IggyClient,
-        config: &IggyStreamConfig,
-    ) -> Result<Self, IggyError> {
-        //
-
-        let iggy_producer = match Self::build_iggy_producer(client, config).await{
+    pub async fn new(client: &IggyClient, config: &IggyStreamConfig) -> Result<Self, IggyError> {
+        let iggy_producer = match Self::build_iggy_producer(client, config).await {
             Ok(iggy_producer) => iggy_producer,
             Err(err) => return Err(err),
         };
 
-        let iggy_consumer = match Self::build_iggy_consumer(client, config).await{
+        let iggy_consumer = match Self::build_iggy_consumer(client, config).await {
             Ok(iggy_consumer) => iggy_consumer,
             Err(err) => return Err(err),
         };
 
         Ok(Self {
-            iggy_producer,
+            iggy_producer: Arc::new(iggy_producer),
             iggy_consumer,
             config: config.to_owned(),
             stream_id: config.stream_id().to_owned(),
             topic_id: config.topic_id().to_owned(),
         })
-
     }
 }
 
@@ -61,7 +55,7 @@ impl IggyStream {
     }
 
     /// Returns a reference to the `IggyProducer`.
-    pub fn producer(&self) -> &IggyProducer {
+    pub fn producer(&self) -> &Arc<IggyProducer> {
         &self.iggy_producer
     }
 }

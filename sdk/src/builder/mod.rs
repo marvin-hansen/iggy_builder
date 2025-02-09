@@ -4,8 +4,8 @@ mod event_consumer;
 mod event_producer;
 pub mod message_consumer;
 pub mod message_producer;
-mod utils;
 mod message_stream;
+mod utils;
 
 // Re-exports
 pub use crate::builder::builder::*;

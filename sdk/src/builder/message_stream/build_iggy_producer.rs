@@ -1,3 +1,5 @@
+use crate::builder::message_stream::IggyStream;
+use crate::builder::IggyStreamConfig;
 use iggy::clients::client::IggyClient;
 use iggy::clients::producer::IggyProducer;
 use iggy::error::IggyError;
@@ -5,15 +7,12 @@ use iggy::messages::send_messages::Partitioning;
 use iggy::utils::expiry::IggyExpiry;
 use iggy::utils::topic_size::MaxTopicSize;
 use tracing::error;
-use crate::builder::IggyStreamConfig;
-use crate::builder::message_stream::IggyStream;
 
 impl IggyStream {
     pub(crate) async fn build_iggy_producer(
         client: &IggyClient,
         stream_config: &IggyStreamConfig,
     ) -> Result<IggyProducer, IggyError> {
-
         let stream = stream_config.stream_name();
         let topic = stream_config.topic_name();
         let batch_size = stream_config.batch_size();
