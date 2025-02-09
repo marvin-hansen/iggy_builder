@@ -28,75 +28,78 @@ sdk = { git = "https://github.com/marvin-hansen/iggy_builder.git", branch = "mai
 Find a full example in the [tests](sdk/tests/builder/iggy_builder_tests.rs) directory.
 
 ```rust
-use sdk::builder::{IggyBuilder, IggyConfig};
-
+const IGGY_URL: &str = "iggy://iggy:iggy@localhost:8090";
+ 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
-    // Create a new default configuration
-    let config = IggyConfig::default();
 
-    // Build Iggy client and builder
-    let (iggy_client, iggy_client_builder) = IggyBuilder::from_config(&config).await?
-    let message_producer = iggy_client_builder.iggy_producer().to_owned();
-    let message_consumer = iggy_client_builder.iggy_consumer(); 
-  
-    // Start iggy consumer
+    // Build iggy client and connect it.
+    let iggy_client = IggyClient::from_connection_string(IGGY_URL).unwrap().connect().await.unwrap();
+    
+    // Build iggy stream & producer    
+    let stream_config = stream_config();
+    let iggy_stream =  IggyStream::new(&iggy_client, &stream_config).await.unwrap;
+
+     let message_producer = iggy_stream.producer().to_owned();
+    
+    // Start message stream   
     let token = CancellationToken::new();
     let token_consumer = token.clone();
     tokio::spawn(async move {
-         message_consumer
-             // Your processing logic goes into PrintEventConsumer that implements EventConsumer 
+        match iggy_stream
             .consume_messages(&PrintEventConsumer {}, token)
-            .await.expect("Failed to start iggy consumer");
-    });
-    
-    // Send a message
+            .await
+        {
+            Ok(_) => {}
+            Err(err) => {
+                eprintln!("Failed to consume messages: {err}");
+            }
+        }
+    });  
+ 
+    // Send a test message
     let payload = "Hello Iggy";
-    let message = Message::from_str(payload).expect("Failed to create test message"); 
-    message_producer.producer().send_one(message).await?;
-     
-    // Stop iggy consumer  
-    token_consumer.cancel();
+    let message = Message::from_str(payload).expect("Failed to create test message").unwrap;
 
-    // Shutdown iggy client 
-    iggy_client.shutdown().await?;
-       
-    Ok(())
-}
+    // Stop the message stream  
+    token_consumer.cancel();
+    println!("✅ iggy consumer stopped");
+
+    // Sop the iggy client 
+    let res = iggy_client.shutdown().await;
+  
+    Ok(()) 
+}  
+
 ```
 
 ## Configuration 
 
-The builder pattern extents to the configuration which means defining a custom IggyConfig is as simple as:
+A basic IggyStream only requires very little configuration. See example below.
 
 ```rust
-use sdk::builder::IggyConfig;
+use sdk::builder::IggyStreamConfig;
 
-let user = IggyUser::builder()
-        .username("iggy".to_string())
-        .password("iggy".to_string())
-        .build();  
-
-let iggy_config = IggyConfig::builder()
-        .user(user)
-        .stream_id(Identifier::numeric(42).unwrap())
-        .stream_name("stream_42".to_string())
-        .stream_partition_count(1)
-        .topic_id(Identifier::numeric(23).unwrap())
-        .topic_name("topic_23".to_string())
-        .partition_id(1)
-        .messages_per_batch(10)
-        .auto_commit(true)
-        .tcp_server_addr("localhost:8090".to_string())
-        .message_consumer_name("consumer_data".to_string())
-        .build()
+fn stream_config() -> IggyStreamConfig {
+    IggyStreamConfig::new(
+        "test_stream",
+        "test_topic",
+        100,
+        iggy::utils::duration::IggyDuration::from_str("1ms").unwrap(),
+        iggy::utils::duration::IggyDuration::from_str("1ms").unwrap(),
+        iggy::messages::poll_messages::PollingStrategy::last(),
+    )
+}
 ```  
+
+For more advanced configuration, use the `with_all_fields` constructor.
+If your requirements exceed these requirements, you can use the regular SDK
+to construct fully customized producers and consumers.
 
 ## Message Processing
 
 To process messages received from the consumer, you implement the `EventConsumer` trait,
-pass it to the `consume_messages` method of the MessageConsumer, which then starts to consume messages
-from the configured stream.
+pass it to the `consume_messages` method of the IggyStream, which then starts to consume messages from the stream.
 
 ```rust
 use sdk::builder::{EventConsumer, EventConsumerError};
@@ -118,22 +121,6 @@ impl EventConsumer for PrintEventConsumer {
     }
 }  
 ```
- 
-  
-  
-
-## Architecture
-
-The SDK is built around several core components:
-
-- `IggyBuilder`: Main entry point for creating producers and consumers
-- `MessageProducer`: Handles message publishing
-- `MessageConsumer`: Manages message consumption
-- `EventProducer`: Trait to implement a producer for sending out messages
-- `EventConsumer`: Trait to implement a consumer for incoming messages
-
-The MessageProducer already implements EventProducer, which allows you to use it as a default producer.
-However, you can replace it with a custom producer by implementing the `EventProducer` trait.
 
 ## Contributing
 
