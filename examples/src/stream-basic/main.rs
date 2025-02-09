@@ -11,7 +11,7 @@ const IGGY_URL: &str = "iggy://iggy:iggy@localhost:8090";
 #[tokio::main]
 async fn main() -> Result<(), IggyError> {
     println!("Build iggy client and connect it.");
-    let iggy_client = build_and_connect_iggy_client(IGGY_URL).await?;
+    let iggy_client = IggyClient::from_connection_string(IGGY_URL)?;
     iggy_client.connect().await?;
 
     println!("Build iggy stream & producer");
@@ -63,29 +63,13 @@ impl EventConsumer for PrintEventConsumer {
     async fn consume(&self, message: PolledMessage) -> Result<(), EventConsumerError> {
         // Message payload is just a continuous slice of memory hence zero copy access.
         let raw_message = message.payload.as_ref();
-
         // convert raw bytes into string
         let message = String::from_utf8_lossy(raw_message);
-
         // Print message to stdout
         println!("###################");
-        println!("[PrintEventConsumer]");
         println!("Message received: {}", message);
         println!("###################");
 
         Ok(())
     }
-}
-async fn build_and_connect_iggy_client(connection_string: &str) -> Result<IggyClient, IggyError> {
-    let iggy_client = match IggyClient::from_connection_string(connection_string) {
-        Ok(iggy_client) => iggy_client,
-        Err(err) => return Err(err),
-    };
-
-    match iggy_client.connect().await {
-        Ok(_) => {}
-        Err(err) => return Err(err),
-    };
-
-    Ok(iggy_client)
 }

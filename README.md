@@ -38,7 +38,7 @@ const IGGY_URL: &str = "iggy://iggy:iggy@localhost:8090";
 #[tokio::main]
 async fn main() -> Result<(), IggyError> {
     println!("Build iggy client and connect it.");
-    let  iggy_client = build_and_connect_iggy_client(IGGY_URL).await?;
+    let iggy_client =  IggyClient::from_connection_string(IGGY_URL)?;
     iggy_client.connect().await?;
 
     println!("Build iggy stream & producer");
