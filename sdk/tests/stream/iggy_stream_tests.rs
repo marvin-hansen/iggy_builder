@@ -1,5 +1,7 @@
 use std::str::FromStr;
 use iggy::client::Client;
+use iggy::clients::client::IggyClient;
+use iggy::error::IggyError;
 use iggy::models::messages::PolledMessage;
 use tokio_util::sync::CancellationToken;
 use sdk::builder::{EventConsumer, EventConsumerError, IggyStream, IggyStreamConfig};
@@ -9,7 +11,7 @@ const IGGY_URL: &str = "iggy://iggy:iggy@localhost:8090";
 #[tokio::test]
 async fn test_iggy_stream() {
 
-    let res = IggyStream::build_and_connect_iggy_client(IGGY_URL).await;
+    let res = build_and_connect_iggy_client(IGGY_URL).await;
     assert!(res.is_ok());
     let iggy_client = res.unwrap();
     println!("✅ iggy client build");
@@ -88,4 +90,17 @@ impl EventConsumer for PrintEventConsumer {
 
         Ok(())
     }
+}
+ async fn build_and_connect_iggy_client(connection_string: &str) -> Result<IggyClient, IggyError> {
+    let iggy_client = match IggyClient::from_connection_string(connection_string) {
+        Ok(iggy_client) => iggy_client,
+        Err(err) => return Err(err),
+    };
+
+    match iggy_client.connect().await {
+        Ok(_) => {}
+        Err(err) => return Err(err),
+    };
+
+    Ok(iggy_client)
 }

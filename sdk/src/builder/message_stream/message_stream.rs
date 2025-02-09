@@ -1,5 +1,5 @@
 use std::sync::Arc;
-use crate::builder::{IggyStreamConfig};
+use crate::builder::{IggyStreamConfig, MessageProducer};
 use iggy::clients::client::IggyClient;
 use iggy::clients::producer::IggyProducer;
 use iggy::error::IggyError;
@@ -7,7 +7,7 @@ use iggy::identifier::Identifier;
 use iggy::clients::consumer::IggyConsumer;
 
 pub struct IggyStream {
-    iggy_producer: IggyProducer, // Change this to MessageProducer
+    iggy_producer: MessageProducer, // Change this to MessageProducer
     iggy_consumer: IggyConsumer,
     config: IggyStreamConfig,
     stream_id: Identifier,
