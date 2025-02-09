@@ -1,4 +1,4 @@
-use crate::builder::message_stream::IggyStream;
+use crate::builder::iggy_stream::IggyStream;
 use crate::builder::IggyStreamConfig;
 use iggy::clients::client::IggyClient;
 use iggy::clients::consumer::{AutoCommit, AutoCommitWhen, IggyConsumer};
