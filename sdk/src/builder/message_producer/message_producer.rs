@@ -2,7 +2,6 @@ use crate::builder::config::Args;
 use iggy::clients::client::IggyClient;
 use iggy::clients::producer::IggyProducer;
 use iggy::error::IggyError;
-use iggy::identifier::Identifier;
 use iggy::messages::send_messages::Partitioning;
 use iggy::utils::duration::IggyDuration;
 use iggy::utils::expiry::IggyExpiry;

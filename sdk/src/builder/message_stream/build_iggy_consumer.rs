@@ -2,10 +2,7 @@ use crate::builder::message_stream::IggyStream;
 use crate::builder::IggyStreamConfig;
 use iggy::clients::client::IggyClient;
 use iggy::clients::consumer::{AutoCommit, AutoCommitWhen, IggyConsumer};
-use iggy::clients::producer::IggyProducer;
-use iggy::consumer::ConsumerKind;
 use iggy::error::IggyError;
-use iggy::messages::poll_messages::PollingStrategy;
 use tracing::error;
 
 impl IggyStream {

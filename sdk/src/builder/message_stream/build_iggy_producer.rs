@@ -3,7 +3,6 @@ use crate::builder::IggyStreamConfig;
 use iggy::clients::client::IggyClient;
 use iggy::clients::producer::IggyProducer;
 use iggy::error::IggyError;
-use iggy::messages::send_messages::Partitioning;
 use iggy::utils::expiry::IggyExpiry;
 use iggy::utils::topic_size::MaxTopicSize;
 use tracing::error;
