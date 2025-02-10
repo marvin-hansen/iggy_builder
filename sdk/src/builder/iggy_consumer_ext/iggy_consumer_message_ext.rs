@@ -5,7 +5,7 @@ use iggy::clients::consumer::IggyConsumer;
 use iggy::error::IggyError;
 use tokio::select;
 use tokio_util::sync::CancellationToken;
-use tracing::error;
+use tracing::{error};
 
 #[async_trait]
 impl IggyConsumerMessageExt for IggyConsumer {

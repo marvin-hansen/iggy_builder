@@ -43,13 +43,13 @@ impl IggyStream {
             .batch_size(batch_size)
             .send_interval(send_interval)
             .partitioning(partitioning)
+            .create_stream_if_not_exists()
             .create_topic_if_not_exists(
                 partitions_count,
                 replication_factor,
                 IggyExpiry::ServerDefault,
                 MaxTopicSize::ServerDefault,
             )
-            // .create_stream_if_not_exists()
             .build();
 
         match producer.init().await {

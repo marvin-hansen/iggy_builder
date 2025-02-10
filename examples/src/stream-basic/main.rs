@@ -1,4 +1,4 @@
-use iggy::client::{Client, StreamClient};
+use iggy::client::Client;
 use iggy::models::messages::PolledMessage;
 use iggy_examples::shared;
 use sdk::builder::*;
@@ -13,7 +13,7 @@ async fn main() -> Result<(), IggyError> {
     let iggy_client = shared::client::build_client(stream, topic, true).await?;
 
     println!("Build iggy producer & consumer");
-    let stream_config = IggyStreamConfig::from_stream_topic(stream, topic, 10);
+    let stream_config = IggyStreamConfig::from_stream_topic(stream, topic, 1);
     let (producer, consumer) = IggyStream::new(&iggy_client, &stream_config).await?;
 
     println!("Start message stream");
@@ -31,21 +31,21 @@ async fn main() -> Result<(), IggyError> {
         }
     });
 
-    println!("Send first test message");
+    println!("Send first test message: Hello World");
     let message = Message::from_str("Hello World")?;
     producer.send_one(message).await?;
 
     // wait 1 second
     tokio::time::sleep(tokio::time::Duration::from_secs(1)).await;
 
-    println!("Send second test message");
+    println!("Send second test message: Hello Iggy");
     let message = Message::from_str("Hello Iggy")?;
     producer.send_one(message).await?;
 
     // wait 1 second
     tokio::time::sleep(tokio::time::Duration::from_secs(1)).await;
 
-    println!("Send third test message");
+    println!("Send third test message: Hello Apache");
     let message = Message::from_str("Hello Apache")?;
     producer.send_one(message).await?;
 
@@ -54,7 +54,7 @@ async fn main() -> Result<(), IggyError> {
 
     println!("Stop the message stream and shutdown iggy client");
     token_consumer.cancel();
-    iggy_client.delete_stream(stream_config.stream_id()).await?;
+    // iggy_client.delete_stream(stream_config.stream_id()).await?;
     iggy_client.shutdown().await?;
 
     Ok(())
