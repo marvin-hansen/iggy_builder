@@ -1,5 +1,7 @@
 use iggy::client::Client;
+use iggy::messages::poll_messages::PollingStrategy;
 use iggy::models::messages::PolledMessage;
+use iggy::utils::duration::IggyDuration;
 use iggy_examples::shared;
 use sdk::builder::*;
 use std::str::FromStr;
@@ -13,7 +15,14 @@ async fn main() -> Result<(), IggyError> {
     let iggy_client = shared::client::build_client(stream, topic, true).await?;
 
     println!("Build iggy producer & consumer");
-    let stream_config = IggyStreamConfig::from_stream_topic(stream, topic, 1);
+    let stream_config = IggyStreamConfig::new(
+        stream,
+        topic,
+        100,
+        IggyDuration::from_str("1ms").unwrap(),
+        IggyDuration::from_str("1ms").unwrap(),
+        PollingStrategy::last(),
+    );
     let (producer, consumer) = IggyStream::new(&iggy_client, &stream_config).await?;
 
     println!("Start message stream");
