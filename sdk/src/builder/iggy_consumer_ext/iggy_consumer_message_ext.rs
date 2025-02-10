@@ -1,51 +1,25 @@
-use crate::builder::iggy_stream::IggyStream;
-use crate::builder::EventConsumer;
+use crate::builder::{EventConsumer, IggyConsumerMessageExt};
+use async_trait::async_trait;
 use futures_util::StreamExt;
+use iggy::clients::consumer::IggyConsumer;
 use iggy::error::IggyError;
 use tokio::select;
 use tokio_util::sync::CancellationToken;
 use tracing::error;
 
-impl IggyStream {
-    /// Consume messages from the underlying consumer and process them
-    /// using the provided `EventConsumer` implementation.
-    ///
-    /// # Arguments
-    ///
-    /// * `event_processor` - A shared reference to the `EventConsumer` implementation to use for processing messages.
-    /// * `cancellation_token` - A `CancellationToken` which can be used to cancel the message consumption loop.
-    ///
-    /// # Errors
-    ///
-    /// * `IggyError::Disconnected` - If the consumer is disconnected.
-    /// * `IggyError::CannotEstablishConnection` - If the consumer cannot establish a connection.
-    /// * `IggyError::StaleClient` - If the consumer is stale.
-    /// * `IggyError::InvalidServerAddress` - If the server address is invalid.
-    /// * `IggyError::InvalidClientAddress` - If the client address is invalid.
-    /// * `IggyError::NotConnected` - If the consumer is not connected.
-    /// * `IggyError::ClientShutdown` - If the consumer is shutdown.
-    ///
-    /// # Details
-    ///
-    /// This function will continue to consume messages from the underlying consumer until
-    /// either the `cancellation_token` is canceled or an irrecoverable error occurs.
-    ///
-    /// If the `cancellation_token` is canceled, the function will return immediately.
-    ///
-    /// If an error occurs, the function will return the error.
-    pub async fn consume_messages(
-        mut self,
+#[async_trait]
+impl IggyConsumerMessageExt for IggyConsumer {
+    async fn consume_messages(
+        mut self, // self is of type mut IggyConsumer
         event_processor: &'static (impl EventConsumer + Sync),
         cancellation_token: CancellationToken,
     ) -> Result<(), IggyError> {
-        let consumer = self.consumer_mut();
-
         select! {
              _ = cancellation_token.cancelled() => {
                     return Ok(())
                 }
 
-            received_message = consumer.next() => {
+            received_message = self.next() => {
                 match received_message {
 
                     // Message received, process it

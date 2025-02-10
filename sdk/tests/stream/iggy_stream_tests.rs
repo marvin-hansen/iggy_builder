@@ -3,7 +3,9 @@ use iggy::clients::client::IggyClient;
 use iggy::error::IggyError;
 use iggy::messages::send_messages::Message;
 use iggy::models::messages::PolledMessage;
-use sdk::builder::{EventConsumer, EventConsumerError, IggyStream, IggyStreamConfig};
+use sdk::builder::{
+    EventConsumer, EventConsumerError, IggyConsumerMessageExt, IggyStream, IggyStreamConfig,
+};
 use std::str::FromStr;
 use tokio_util::sync::CancellationToken;
 
@@ -19,17 +21,14 @@ async fn test_iggy_stream() {
     let stream_config = stream_config();
     let res = IggyStream::new(&iggy_client, &stream_config).await;
     assert!(res.is_ok());
-    let iggy_stream = res.unwrap();
+    let (producer, consumer) = res.unwrap();
     println!("✅ iggy stream build");
-
-    let message_producer = iggy_stream.producer().to_owned();
-    println!("✅ iggy producer build");
 
     println!("Start iggy stream");
     let token = CancellationToken::new();
     let token_consumer = token.clone();
     tokio::spawn(async move {
-        match iggy_stream
+        match consumer
             .consume_messages(&PrintEventConsumer {}, token)
             .await
         {
@@ -45,7 +44,7 @@ async fn test_iggy_stream() {
     let payload = "Hello Iggy";
     let message = Message::from_str(payload).expect("Failed to create test message");
 
-    let res = message_producer.send_one(message).await;
+    let res = producer.send_one(message).await;
     assert!(res.is_ok());
     println!("✅ test message send");
 

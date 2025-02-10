@@ -110,6 +110,17 @@ impl IggyStreamConfig {
         }
     }
 
+    pub fn from_stream_topic(stream: &str, topic: &str, batch_size: u32) -> Self {
+        Self::new(
+            stream,
+            topic,
+            batch_size,
+            IggyDuration::from_str("1ms").unwrap(),
+            IggyDuration::from_str("1ms").unwrap(),
+            PollingStrategy::last(),
+        )
+    }
+
     /// Creates a fully customized `IggyStreamConfig` with all fields defined.
     ///
     /// # Args

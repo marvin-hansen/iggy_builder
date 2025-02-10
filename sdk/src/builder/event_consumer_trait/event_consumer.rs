@@ -1,4 +1,4 @@
-use crate::builder::event_consumer::EventConsumerError;
+use crate::builder::event_consumer_trait::EventConsumerError;
 use iggy::models::messages::PolledMessage;
 
 /// Trait for event consumer
