@@ -19,11 +19,13 @@ async fn main() -> Result<(), IggyError> {
         stream,
         topic,
         100,
-        IggyDuration::from_str("1ms").unwrap(),
-        IggyDuration::from_str("1ms").unwrap(),
+        IggyDuration::from_str("5ms").unwrap(),
+        IggyDuration::from_str("5ms").unwrap(),
         PollingStrategy::last(),
     );
     let (producer, consumer) = IggyStream::new(&iggy_client, &stream_config).await?;
+    // wait 1 second
+    tokio::time::sleep(tokio::time::Duration::from_secs(1)).await;
 
     println!("Start message stream");
     let token = CancellationToken::new();
@@ -40,26 +42,20 @@ async fn main() -> Result<(), IggyError> {
         }
     });
 
-    println!("Send first test message: Hello World");
+    println!("Send first test message");
     let message = Message::from_str("Hello World")?;
     producer.send_one(message).await?;
 
-    // wait 1 second
-    tokio::time::sleep(tokio::time::Duration::from_secs(1)).await;
-
-    println!("Send second test message: Hello Iggy");
+    println!("Send second test message");
     let message = Message::from_str("Hello Iggy")?;
     producer.send_one(message).await?;
 
-    // wait 1 second
-    tokio::time::sleep(tokio::time::Duration::from_secs(1)).await;
-
-    println!("Send third test message: Hello Apache");
+    println!("Send third test message");
     let message = Message::from_str("Hello Apache")?;
     producer.send_one(message).await?;
 
-    // wait 1 second
-    tokio::time::sleep(tokio::time::Duration::from_secs(1)).await;
+    // wait a bit for all messages to arrive at the consumer
+    tokio::time::sleep(tokio::time::Duration::from_secs(5)).await;
 
     println!("Stop the message stream and shutdown iggy client");
     token_consumer.cancel();
