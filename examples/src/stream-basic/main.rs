@@ -33,9 +33,8 @@ async fn main() -> Result<(), IggyError> {
     let message = Message::from_str("Hello Iggy")?;
     producer.send_one(message).await?;
 
-    println!("Stop the message stream, cleanup, and shutdown iggy client");
+    println!("Stop the message stream and shutdown iggy client");
     token_consumer.cancel();
-
     iggy_client.shutdown().await?;
 
     Ok(())
@@ -50,11 +49,10 @@ impl EventConsumer for PrintEventConsumer {
         let raw_message = message.payload.as_ref();
         // convert raw bytes into string
         let message = String::from_utf8_lossy(raw_message);
-
+        // Print message to stdout
         println!("###################");
         println!("Message received: {}", message);
         println!("###################");
-
         Ok(())
     }
 }
