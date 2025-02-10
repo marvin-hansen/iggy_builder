@@ -1,4 +1,4 @@
-use iggy::client::Client;
+use iggy::client::{Client, StreamClient, TopicClient};
 use iggy::models::messages::PolledMessage;
 use sdk::builder::*;
 use std::str::FromStr;
@@ -35,6 +35,12 @@ async fn main() -> Result<(), IggyError> {
 
     println!("Stop the message stream, cleanup, and shutdown iggy client");
     token_consumer.cancel();
+
+    // Any of these or both triggers the server side errors.
+    iggy_client
+        .delete_topic(stream_config.stream_id(), stream_config.topic_id())
+        .await?;
+    iggy_client.delete_stream(stream_config.stream_id()).await?;
 
     iggy_client.shutdown().await?;
 
