@@ -1,18 +1,14 @@
 use clap::Parser;
-use iggy::client::Client;
-use iggy::client_provider;
-use iggy::client_provider::ClientProviderConfig;
-use iggy::clients::client::IggyClient;
 use iggy::clients::producer::IggyProducer;
 use iggy::messages::send_messages::{Message, Partitioning};
 use iggy::utils::duration::IggyDuration;
 use iggy::utils::expiry::IggyExpiry;
 use iggy::utils::topic_size::MaxTopicSize;
+use iggy_examples::shared;
 use iggy_examples::shared::args::Args;
 use iggy_examples::shared::messages_generator::MessagesGenerator;
 use std::error::Error;
 use std::str::FromStr;
-use std::sync::Arc;
 use tracing::info;
 use tracing_subscriber::layer::SubscriberExt;
 use tracing_subscriber::util::SubscriberInitExt;
@@ -29,10 +25,8 @@ async fn main() -> anyhow::Result<(), Box<dyn Error>> {
         "New SDK producer has started, selected transport: {}",
         args.transport
     );
-    let client_provider_config = Arc::new(ClientProviderConfig::from_args(args.to_sdk_args())?);
-    let client = client_provider::get_raw_client(client_provider_config, false).await?;
-    let client = IggyClient::builder().with_client(client).build()?;
-    client.connect().await?;
+    let client = shared::client::build_client_from_args(args.to_sdk_args(), true).await?;
+
     let mut producer = client
         .producer(&args.stream_id, &args.topic_id)?
         .batch_size(args.messages_per_batch)

@@ -28,8 +28,8 @@ impl IggyStream {
         stream_config: &IggyStreamConfig,
     ) -> Result<IggyConsumer, IggyError> {
         // Extract config fields.
-        let consumer_kind = ConsumerKind::Consumer;
-        let consumer_group_name = stream_config.consumer_group_name();
+        let consumer_kind = stream_config.consumer_kind();
+        let consumer_name = stream_config.consumer_group_name();
         let stream = stream_config.stream_name();
         let topic = stream_config.topic_name();
         let batch_size = stream_config.batch_size();
@@ -38,12 +38,9 @@ impl IggyStream {
 
         // Build consumer.
         let mut consumer = match consumer_kind {
-            ConsumerKind::Consumer => client.consumer(consumer_group_name, stream, topic, 1)?,
-            ConsumerKind::ConsumerGroup => {
-                client.consumer_group(consumer_group_name, stream, topic)?
-            }
+            ConsumerKind::Consumer => client.consumer(consumer_name, stream, topic, 1)?,
+            ConsumerKind::ConsumerGroup => client.consumer_group(consumer_name, stream, topic)?,
         }
-        // .consumer_group(consumer_group_name, stream, topic)?
         .auto_commit(AutoCommit::When(AutoCommitWhen::PollingMessages))
         .create_consumer_group_if_not_exists()
         .auto_join_consumer_group()

@@ -1,5 +1,6 @@
 use iggy::client::{Client, StreamClient};
 use iggy::models::messages::PolledMessage;
+use iggy_examples::shared;
 use sdk::builder::*;
 use std::str::FromStr;
 use tokio_util::sync::CancellationToken;
@@ -7,11 +8,12 @@ use tokio_util::sync::CancellationToken;
 #[tokio::main]
 async fn main() -> Result<(), IggyError> {
     println!("Build iggy client and connect it.");
-    let iggy_client = IggyClient::from_connection_string("iggy://iggy:iggy@localhost:8090")?;
-    iggy_client.connect().await?;
+    let stream = "test_stream";
+    let topic = "test_topic";
+    let iggy_client = shared::client::build_client(stream, topic, true).await?;
 
     println!("Build iggy producer & consumer");
-    let stream_config = IggyStreamConfig::from_stream_topic("test_stream", "test_topic", 1);
+    let stream_config = IggyStreamConfig::from_stream_topic(stream, topic, 10);
     let (producer, consumer) = IggyStream::new(&iggy_client, &stream_config).await?;
 
     println!("Start message stream");

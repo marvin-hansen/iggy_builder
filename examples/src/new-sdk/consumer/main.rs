@@ -1,13 +1,10 @@
 use clap::Parser;
 use futures_util::StreamExt;
-use iggy::client::Client;
-use iggy::client_provider;
-use iggy::client_provider::ClientProviderConfig;
-use iggy::clients::client::IggyClient;
 use iggy::clients::consumer::{AutoCommit, AutoCommitWhen, IggyConsumer, ReceivedMessage};
 use iggy::consumer::ConsumerKind;
 use iggy::messages::poll_messages::PollingStrategy;
 use iggy::utils::duration::IggyDuration;
+use iggy_examples::shared;
 use iggy_examples::shared::args::Args;
 use iggy_examples::shared::messages::{
     Envelope, OrderConfirmed, OrderCreated, OrderRejected, ORDER_CONFIRMED_TYPE,
@@ -15,7 +12,6 @@ use iggy_examples::shared::messages::{
 };
 use std::error::Error;
 use std::str::FromStr;
-use std::sync::Arc;
 use tracing::{error, info, warn};
 use tracing_subscriber::layer::SubscriberExt;
 use tracing_subscriber::util::SubscriberInitExt;
@@ -32,10 +28,7 @@ async fn main() -> anyhow::Result<(), Box<dyn Error>> {
         "New SDK consumer has started, selected transport: {}",
         args.transport
     );
-    let client_provider_config = Arc::new(ClientProviderConfig::from_args(args.to_sdk_args())?);
-    let client = client_provider::get_raw_client(client_provider_config, false).await?;
-    let client = IggyClient::new(client);
-    client.connect().await?;
+    let client = shared::client::build_client_from_args(args.to_sdk_args(), true).await?;
 
     let name = "new-sdk-consumer";
     let mut consumer = match ConsumerKind::from_code(args.consumer_kind)? {

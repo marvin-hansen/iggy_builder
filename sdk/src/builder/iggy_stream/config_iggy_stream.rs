@@ -1,3 +1,4 @@
+use iggy::consumer::ConsumerKind;
 use iggy::error::IggyError;
 use iggy::identifier::Identifier;
 use iggy::messages::poll_messages::PollingStrategy;
@@ -20,6 +21,7 @@ pub struct IggyStreamConfig {
     polling_interval: IggyDuration,
     polling_strategy: PollingStrategy,
     // Advanced options
+    consumer_kind: ConsumerKind,
     encryptor: Option<Arc<EncryptorKind>>,
     partitioning: Partitioning,
     partitions_count: u32,
@@ -44,6 +46,7 @@ impl Default for IggyStreamConfig {
             send_interval: IggyDuration::from_str("1ms").unwrap(),
             polling_interval: IggyDuration::from_str("1ms").unwrap(),
             polling_strategy: PollingStrategy::last(),
+            consumer_kind: ConsumerKind::Consumer,
             partitions_count: 0,
             partitioning: Partitioning::balanced(),
             replication_factor: None,
@@ -103,6 +106,7 @@ impl IggyStreamConfig {
             polling_interval,
             polling_strategy,
             // Advanced options set to defaults
+            consumer_kind: ConsumerKind::Consumer,
             encryptor: None,
             partitioning: Partitioning::balanced(),
             partitions_count: 1,
@@ -130,7 +134,7 @@ impl IggyStreamConfig {
     /// * `topic_id` - The topic identifier.
     /// * `topic_name` - The topic name.
     /// * `batch_size` - The max number of messages to send in a batch.
-    /// * `consumer_group_name` - The consumer group name.
+    /// * `consume_name` - The consumer group name.
     /// * `send_interval` - The interval between messages sent.
     /// * `polling_interval` - The interval between polling for new messages.
     /// * `polling_strategy` - The polling strategy to use.
@@ -152,10 +156,11 @@ impl IggyStreamConfig {
         topic_id: Identifier,
         topic_name: String,
         batch_size: u32,
-        consumer_group_name: String,
+        consume_name: String,
         send_interval: IggyDuration,
         polling_interval: IggyDuration,
         polling_strategy: PollingStrategy,
+        consumer_kind: ConsumerKind,
         encryptor: Option<Arc<EncryptorKind>>,
         partitioning: Partitioning,
         partitions_count: u32,
@@ -167,10 +172,11 @@ impl IggyStreamConfig {
             topic_id,
             topic_name,
             batch_size,
-            consumer_group_name,
+            consumer_group_name: consume_name,
             send_interval,
             polling_interval,
             polling_strategy,
+            consumer_kind,
             encryptor,
             partitioning,
             partitions_count,
@@ -231,5 +237,9 @@ impl IggyStreamConfig {
 
     pub fn consumer_group_name(&self) -> &str {
         &self.consumer_group_name
+    }
+
+    pub fn consumer_kind(&self) -> ConsumerKind {
+        self.consumer_kind
     }
 }
