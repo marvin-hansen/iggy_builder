@@ -49,7 +49,7 @@ impl IggyStream {
                 IggyExpiry::ServerDefault,
                 MaxTopicSize::ServerDefault,
             )
-            .create_stream_if_not_exists()
+            // .create_stream_if_not_exists()
             .build();
 
         match producer.init().await {

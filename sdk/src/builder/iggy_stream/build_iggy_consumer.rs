@@ -2,6 +2,7 @@ use crate::builder::iggy_stream::IggyStream;
 use crate::builder::IggyStreamConfig;
 use iggy::clients::client::IggyClient;
 use iggy::clients::consumer::{AutoCommit, AutoCommitWhen, IggyConsumer};
+use iggy::consumer::ConsumerKind;
 use iggy::error::IggyError;
 use tracing::error;
 
@@ -27,6 +28,7 @@ impl IggyStream {
         stream_config: &IggyStreamConfig,
     ) -> Result<IggyConsumer, IggyError> {
         // Extract config fields.
+        let consumer_kind = ConsumerKind::Consumer;
         let consumer_group_name = stream_config.consumer_group_name();
         let stream = stream_config.stream_name();
         let topic = stream_config.topic_name();
@@ -35,18 +37,20 @@ impl IggyStream {
         let polling_strategy = stream_config.polling_strategy();
 
         // Build consumer.
-        let mut consumer = client
-            .consumer_group(consumer_group_name, stream, topic)?
-            .auto_commit(AutoCommit::IntervalOrWhen(
-                polling_interval,
-                AutoCommitWhen::ConsumingAllMessages,
-            ))
-            .create_consumer_group_if_not_exists()
-            .auto_join_consumer_group()
-            .polling_strategy(polling_strategy)
-            .poll_interval(polling_interval)
-            .batch_size(batch_size)
-            .build();
+        let mut consumer = match consumer_kind {
+            ConsumerKind::Consumer => client.consumer(consumer_group_name, stream, topic, 1)?,
+            ConsumerKind::ConsumerGroup => {
+                client.consumer_group(consumer_group_name, stream, topic)?
+            }
+        }
+        // .consumer_group(consumer_group_name, stream, topic)?
+        .auto_commit(AutoCommit::When(AutoCommitWhen::PollingMessages))
+        .create_consumer_group_if_not_exists()
+        .auto_join_consumer_group()
+        .polling_strategy(polling_strategy)
+        .poll_interval(polling_interval)
+        .batch_size(batch_size)
+        .build();
 
         match consumer.init().await {
             Ok(_) => {}
