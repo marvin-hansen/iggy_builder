@@ -16,8 +16,8 @@ path = "src/new-sdk/producer/main.rs"
 
 
 [[example]]
-name = "stream-basic"
-path = "src/stream-basic/main.rs"
+name = "new-sdk-stream"
+path = "src/new-sdk/stream/main.rs"
 
 
 [dependencies]
@@ -32,4 +32,3 @@ serde_json = "1.0.138"
 tokio = { version = "1.43.0", features = ["full"] }
 tracing = { version = "0.1.41" }
 tracing-subscriber = { version = "0.3.19", features = ["fmt", "env-filter"] }
-tokio-util = "0.7.13"

@@ -1,11 +1,9 @@
-use iggy::client::Client;
-use iggy::messages::poll_messages::PollingStrategy;
+use iggy::client::{Client, StreamClient, TopicClient};
 use iggy::models::messages::PolledMessage;
-use iggy::utils::duration::IggyDuration;
 use iggy_examples::shared;
 use sdk::builder::*;
 use std::str::FromStr;
-use tokio_util::sync::CancellationToken;
+use tokio::sync::oneshot;
 
 #[tokio::main]
 async fn main() -> Result<(), IggyError> {
@@ -15,24 +13,14 @@ async fn main() -> Result<(), IggyError> {
     let iggy_client = shared::client::build_client(stream, topic, true).await?;
 
     println!("Build iggy producer & consumer");
-    let stream_config = IggyStreamConfig::new(
-        stream,
-        topic,
-        100,
-        IggyDuration::from_str("5ms").unwrap(),
-        IggyDuration::from_str("5ms").unwrap(),
-        PollingStrategy::last(),
-    );
+    let stream_config = IggyStreamConfig::from_stream_topic(stream, topic, 10);
     let (producer, consumer) = IggyStream::new(&iggy_client, &stream_config).await?;
-    // wait 1 second
-    tokio::time::sleep(tokio::time::Duration::from_secs(1)).await;
 
     println!("Start message stream");
-    let token = CancellationToken::new();
-    let token_consumer = token.clone();
+    let (sender, receiver) = oneshot::channel();
     tokio::spawn(async move {
         match consumer
-            .consume_messages(&PrintEventConsumer {}, token)
+            .consume_messages(&PrintEventConsumer {}, receiver)
             .await
         {
             Ok(_) => {}
@@ -55,11 +43,14 @@ async fn main() -> Result<(), IggyError> {
     producer.send_one(message).await?;
 
     // wait a bit for all messages to arrive at the consumer
-    tokio::time::sleep(tokio::time::Duration::from_secs(5)).await;
+    tokio::time::sleep(tokio::time::Duration::from_secs(1)).await;
 
     println!("Stop the message stream and shutdown iggy client");
-    token_consumer.cancel();
-    // iggy_client.delete_stream(stream_config.stream_id()).await?;
+    sender.send(()).expect("Failed to send shutdown signal");
+    iggy_client
+        .delete_topic(stream_config.stream_id(), stream_config.topic_id())
+        .await?;
+    iggy_client.delete_stream(stream_config.stream_id()).await?;
     iggy_client.shutdown().await?;
 
     Ok(())
