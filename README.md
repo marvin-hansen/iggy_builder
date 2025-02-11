@@ -28,27 +28,30 @@ sdk = { git = "https://github.com/marvin-hansen/iggy_builder.git", branch = "mai
 Find a full example in the [examples](examples) directory.
 
 ```rust
-use iggy::client::Client;
+use iggy::client::{Client, StreamClient};
 use iggy::models::messages::PolledMessage;
+use iggy_examples::shared;
 use sdk::builder::*;
 use std::str::FromStr;
-use tokio_util::sync::CancellationToken;
+use tokio::sync::oneshot;
  
 #[tokio::main]
 async fn main() -> Result<(), IggyError> {
-    println!("Build iggy client and connect it.");
+    let stream = "test_stream";
+    let topic = "test_topic";
+    
     let iggy_client = IggyClient::from_connection_string("iggy://iggy:iggy@localhost:8090")?;
     iggy_client.connect().await?;
 
-    println!("Build iggy producer & consumer");
-    let stream_config = IggyStreamConfig::from_stream_topic("test_stream", "test_topic", 100);
+    let stream_config = IggyStreamConfig::from_stream_topic(stream, topic, 10);
     let (producer, consumer) = IggyStream::new(&iggy_client, &stream_config).await?;
 
-    println!("Start message stream");
-    let token = CancellationToken::new();
-    let token_consumer = token.clone();
+    let (sender, receiver) = oneshot::channel();
     tokio::spawn(async move {
-        match consumer.consume_messages(&PrintEventConsumer {}, token).await {
+        match consumer
+            .consume_messages(&PrintEventConsumer {}, receiver)
+            .await
+        {
             Ok(_) => {}
             Err(err) => {
                 eprintln!("Failed to consume messages: {err}");
@@ -56,12 +59,15 @@ async fn main() -> Result<(), IggyError> {
         }
     });
 
-    println!("Send a test message");
-    let message = Message::from_str("Hello Iggy")?;
-    producer.send_one(message).await?;
+    producer.send_one(Message::from_str("Hello World")?).await?;
+    producer.send_one(Message::from_str("Hello Iggy")?).await?;
+    producer.send_one(Message::from_str("Hello Apache")?).await?;
 
-    println!("Stop the message stream and shutdown iggy client");
-    token_consumer.cancel();
+    // wait a bit for all messages to arrive.
+    tokio::time::sleep(tokio::time::Duration::from_secs(1)).await;
+
+    sender.send(()).expect("Failed to send shutdown signal");
+    iggy_client.delete_stream(stream_config.stream_id()).await?;
     iggy_client.shutdown().await?;
 
     Ok(())
