@@ -34,7 +34,7 @@ impl IggyStream {
         let batch_size = stream_config.batch_size();
         let send_interval = stream_config.send_interval();
         let partitions_count = stream_config.partitions_count();
-        let partitioning = stream_config.partitioning();
+        let partitioning = stream_config.partitioning().to_owned();
         let replication_factor = stream_config.replication_factor();
 
         // Build producer.

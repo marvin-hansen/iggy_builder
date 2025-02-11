@@ -5,8 +5,6 @@ use sdk::builder::*;
 use std::str::FromStr;
 use tokio::sync::oneshot;
 
-const IGGY_URL: &str = "iggy://iggy:iggy@localhost:8090";
-
 #[tokio::main]
 async fn main() -> Result<(), IggyError> {
     println!("Build iggy client and connect it.");
