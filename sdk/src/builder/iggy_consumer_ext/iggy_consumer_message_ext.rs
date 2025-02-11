@@ -3,63 +3,59 @@ use async_trait::async_trait;
 use futures_util::StreamExt;
 use iggy::clients::consumer::IggyConsumer;
 use iggy::error::IggyError;
-use tokio::select;
 use tokio::sync::oneshot;
-use tracing::error;
+use tracing::{error, info};
 
 #[async_trait]
 impl IggyConsumerMessageExt for IggyConsumer {
     async fn consume_messages(
-        mut self, // self is of type mut IggyConsumer
+        mut self,
         event_processor: &'static (impl EventConsumer + Sync),
-        _shutdown_rx: oneshot::Receiver<()>,
+        mut shutdown_rx: oneshot::Receiver<()>,
     ) -> Result<(), IggyError> {
-        while let Some(message) = self.next().await {
-            if let Ok(received_message) = message {
-                match event_processor.consume(received_message.message).await {
-                    Ok(()) => {}
-                    Err(err) => {
-                        error!("Error while handling message: {err}");
+        loop {
+            tokio::select! {
+                // Check first if we have received a shutdown signal
+                _ = &mut shutdown_rx => {
+                    info!("Received shutdown signal, stopping message consumption");
+                    break;
+                }
+
+                message = self.next() => {
+                    match message {
+                        Some(Ok(received_message)) => {
+                            if let Err(err) = event_processor.consume(received_message.message).await {
+                                error!("Error while handling message: {err}");
+                            }
+                        }
+                        Some(Err(err)) => {
+                            match err {
+                                IggyError::Disconnected |
+                                IggyError::CannotEstablishConnection |
+                                IggyError::StaleClient |
+                                IggyError::InvalidServerAddress |
+                                IggyError::InvalidClientAddress |
+                                IggyError::NotConnected |
+                                IggyError::ClientShutdown => {
+                                    error!("{err:?}: shutdown client: {err}");
+                                    return Err(err);
+                                }
+                                _ => {
+                                    error!("Error while handling message: {err}");
+                                    continue;
+                                }
+                            }
+                        }
+                        None => break,
                     }
-                };
-            } else if let Err(err) = message {
-                // Handle the most egregious error
-                match err {
-                    IggyError::Disconnected => {
-                        error!("Disconnected: shutdown client: {err}");
-                        return Err(err);
-                    }
-                    IggyError::CannotEstablishConnection => {
-                        error!("CannotEstablishConnection: shutdown client : {err}");
-                        return Err(err);
-                    }
-                    IggyError::StaleClient => {
-                        error!("StaleClient:  shutdown client: {err}");
-                        return Err(err);
-                    }
-                    IggyError::InvalidServerAddress => {
-                        error!("InvalidServerAddress:  shutdown client: {err}");
-                        return Err(err);
-                    }
-                    IggyError::InvalidClientAddress => {
-                        error!("InvalidClientAddress:  shutdown client: {err}");
-                        return Err(err);
-                    }
-                    IggyError::NotConnected => {
-                        error!("NotConnected:  shutdown client: {err}");
-                        return Err(err);
-                    }
-                    IggyError::ClientShutdown => {
-                        error!("ClientShutdown:  shutdown client: {err}");
-                        return Err(err);
-                    }
-                    _ => {
-                        error!("Error while handling message: {err}",);
-                        continue;
-                    }
-                } // end match error
-            } // end else if let Err(err)
-        } // end  while let Some(message)
+                }
+
+            }
+        }
+
+        // We have to wait for a moment for the iggy server.
+        tokio::time::sleep(tokio::time::Duration::from_millis(100)).await;
+
         Ok(())
-    } // end consume_messages(..)
+    }
 }

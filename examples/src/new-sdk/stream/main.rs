@@ -1,4 +1,4 @@
-use iggy::client::{Client, StreamClient, TopicClient};
+use iggy::client::{Client, StreamClient};
 use iggy::models::messages::PolledMessage;
 use iggy_examples::shared;
 use sdk::builder::*;
@@ -30,26 +30,18 @@ async fn main() -> Result<(), IggyError> {
         }
     });
 
-    println!("Send first test message");
-    let message = Message::from_str("Hello World")?;
-    producer.send_one(message).await?;
+    println!("Send 3 test messages...");
+    producer.send_one(Message::from_str("Hello World")?).await?;
+    producer.send_one(Message::from_str("Hello Iggy")?).await?;
+    producer
+        .send_one(Message::from_str("Hello Apache")?)
+        .await?;
 
-    println!("Send second test message");
-    let message = Message::from_str("Hello Iggy")?;
-    producer.send_one(message).await?;
-
-    println!("Send third test message");
-    let message = Message::from_str("Hello Apache")?;
-    producer.send_one(message).await?;
-
-    // wait a bit for all messages to arrive at the consumer
+    // wait a bit for all messages to arrive.
     tokio::time::sleep(tokio::time::Duration::from_secs(1)).await;
 
     println!("Stop the message stream and shutdown iggy client");
     sender.send(()).expect("Failed to send shutdown signal");
-    iggy_client
-        .delete_topic(stream_config.stream_id(), stream_config.topic_id())
-        .await?;
     iggy_client.delete_stream(stream_config.stream_id()).await?;
     iggy_client.shutdown().await?;
 
