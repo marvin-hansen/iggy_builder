@@ -29,43 +29,32 @@ Find a full example in the [examples](examples) directory.
 
 ```rust
 use iggy::client::{Client, StreamClient};
-use iggy::models::messages::PolledMessage;
-use iggy_examples::shared;
 use sdk::builder::*;
 use std::str::FromStr;
 use tokio::sync::oneshot;
  
+const IGGY_URL: &str = "iggy://iggy:iggy@localhost:8090";
+  
 #[tokio::main]
 async fn main() -> Result<(), IggyError> {
-    let stream = "test_stream";
-    let topic = "test_topic";
-    
-    let iggy_client = IggyClient::from_connection_string("iggy://iggy:iggy@localhost:8090")?;
-    iggy_client.connect().await?;
-
-    let stream_config = IggyStreamConfig::from_stream_topic(stream, topic, 10);
-    let (producer, consumer) = IggyStream::new(&iggy_client, &stream_config).await?;
+    let stream_config = IggyStreamConfig::from_stream_topic("test_stream", "test_topic", 10);
+    let (client, producer, consumer) = IggyStream::with_client_from_connection_string(IGGY_URL, &stream_config).await?;
 
     let (sender, receiver) = oneshot::channel();
     tokio::spawn(async move {
-        match consumer
-            .consume_messages(&PrintEventConsumer {}, receiver)
-            .await
-        {
+        match consumer.consume_messages(&PrintEventConsumer {}, receiver).await {
             Ok(_) => {}
-            Err(err) => {
-                eprintln!("Failed to consume messages: {err}");
-            }
+            Err(err) => eprintln!("Failed to consume messages: {err}"),
         }
     });
 
     producer.send_one(Message::from_str("Hello World")?).await?;
-    producer.send_one(Message::from_str("Hello Iggy")?).await?;
-    producer.send_one(Message::from_str("Hello Apache")?).await?;
-
+    producer.send_one(Message::from_str("Hola Iggy")?).await?;
+    producer.send_one(Message::from_str("Hi Apache")?).await?;
     // wait a bit for all messages to arrive.
     tokio::time::sleep(tokio::time::Duration::from_secs(1)).await;
-
+    
+    // Stop the message stream and shutdown iggy client
     sender.send(()).expect("Failed to send shutdown signal");
     iggy_client.delete_stream(stream_config.stream_id()).await?;
     iggy_client.shutdown().await?;
@@ -114,6 +103,7 @@ pass it to the `consume_messages` method of the IggyStream, which then starts to
 
 ```rust
 use sdk::builder::{EventConsumer, EventConsumerError};
+use iggy::models::messages::PolledMessage;
 
 struct PrintEventConsumer;
 

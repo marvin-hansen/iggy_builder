@@ -1,4 +1,5 @@
 use crate::builder::IggyStreamConfig;
+use iggy::client::Client;
 use iggy::clients::client::IggyClient;
 use iggy::clients::consumer::IggyConsumer;
 use iggy::clients::producer::IggyProducer;
@@ -25,5 +26,18 @@ impl IggyStream {
         };
 
         Ok((iggy_producer, iggy_consumer))
+    }
+
+    pub async fn with_client_from_connection_string(
+        connection_string: &str,
+        config: &IggyStreamConfig,
+    ) -> Result<(IggyClient, IggyProducer, IggyConsumer), IggyError> {
+        // Build and connect iggy client
+        let client = IggyClient::from_connection_string(connection_string)?;
+        client.connect().await?;
+
+        // Build iggy producer and consumer
+        let (iggy_producer, iggy_consumer) = Self::new(&client, config).await?;
+        Ok((client, iggy_producer, iggy_consumer))
     }
 }

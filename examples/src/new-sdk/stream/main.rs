@@ -5,16 +5,18 @@ use sdk::builder::*;
 use std::str::FromStr;
 use tokio::sync::oneshot;
 
+const IGGY_URL: &str = "iggy://iggy:iggy@localhost:8090";
+
 #[tokio::main]
 async fn main() -> Result<(), IggyError> {
     println!("Build iggy client and connect it.");
     let stream = "test_stream";
     let topic = "test_topic";
-    let iggy_client = shared::client::build_client(stream, topic, true).await?;
+    let client = shared::client::build_client(stream, topic, true).await?;
 
     println!("Build iggy producer & consumer");
     let stream_config = IggyStreamConfig::from_stream_topic(stream, topic, 10);
-    let (producer, consumer) = IggyStream::new(&iggy_client, &stream_config).await?;
+    let (producer, consumer) = IggyStream::new(&client, &stream_config).await?;
 
     println!("Start message stream");
     let (sender, receiver) = oneshot::channel();
@@ -24,26 +26,22 @@ async fn main() -> Result<(), IggyError> {
             .await
         {
             Ok(_) => {}
-            Err(err) => {
-                eprintln!("Failed to consume messages: {err}");
-            }
+            Err(err) => eprintln!("Failed to consume messages: {err}"),
         }
     });
 
     println!("Send 3 test messages...");
     producer.send_one(Message::from_str("Hello World")?).await?;
-    producer.send_one(Message::from_str("Hello Iggy")?).await?;
-    producer
-        .send_one(Message::from_str("Hello Apache")?)
-        .await?;
+    producer.send_one(Message::from_str("Hola Iggy")?).await?;
+    producer.send_one(Message::from_str("Hi Apache")?).await?;
 
     // wait a bit for all messages to arrive.
     tokio::time::sleep(tokio::time::Duration::from_secs(1)).await;
 
     println!("Stop the message stream and shutdown iggy client");
     sender.send(()).expect("Failed to send shutdown signal");
-    iggy_client.delete_stream(stream_config.stream_id()).await?;
-    iggy_client.shutdown().await?;
+    client.delete_stream(stream_config.stream_id()).await?;
+    client.shutdown().await?;
 
     Ok(())
 }
