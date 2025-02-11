@@ -1,3 +1,4 @@
+use iggy::clients::consumer::{AutoCommit, AutoCommitWhen};
 use iggy::consumer::ConsumerKind;
 use iggy::error::IggyError;
 use iggy::identifier::Identifier;
@@ -16,15 +17,16 @@ pub struct IggyStreamConfig {
     topic_id: Identifier,
     topic_name: String,
     batch_size: u32,
-    consumer_group_name: String,
+    consumer_name: String,
     send_interval: IggyDuration,
     polling_interval: IggyDuration,
     polling_strategy: PollingStrategy,
     // Advanced options
+    auto_commit: AutoCommit,
     consumer_kind: ConsumerKind,
     encryptor: Option<Arc<EncryptorKind>>,
     partitioning: Partitioning,
-    partitions_count: u32,
+    partition: u32,
     replication_factor: Option<u8>,
 }
 
@@ -33,7 +35,7 @@ impl Default for IggyStreamConfig {
     fn default() -> Self {
         let stream = "test_stream";
         let topic = "test_topic";
-        let consumer_group_name = format!("consumer-group-{}-{}", stream, topic);
+        let consumer_name = format!("consumer-{}-{}", stream, topic);
 
         Self {
             stream_id: Identifier::from_str_value(stream).unwrap(),
@@ -41,13 +43,14 @@ impl Default for IggyStreamConfig {
             topic_id: Identifier::from_str_value(topic).unwrap(),
             topic_name: topic.to_string(),
             batch_size: 100,
-            consumer_group_name,
+            consumer_name,
             encryptor: None,
             send_interval: IggyDuration::from_str("5ms").unwrap(),
             polling_interval: IggyDuration::from_str("5ms").unwrap(),
             polling_strategy: PollingStrategy::last(),
+            auto_commit: AutoCommit::When(AutoCommitWhen::PollingMessages),
             consumer_kind: ConsumerKind::Consumer,
-            partitions_count: 0,
+            partition: 1,
             partitioning: Partitioning::balanced(),
             replication_factor: None,
         }
@@ -93,7 +96,7 @@ impl IggyStreamConfig {
             }
         };
 
-        let consumer_group_name = format!("consumer-group-{}-{}", stream, topic);
+        let consumer_name = format!("consumer-{}-{}", stream, topic);
 
         Self {
             stream_id,
@@ -101,15 +104,16 @@ impl IggyStreamConfig {
             topic_id,
             topic_name: topic.to_string(),
             batch_size,
-            consumer_group_name,
+            consumer_name,
             send_interval,
             polling_interval,
             polling_strategy,
             // Advanced options set to defaults
+            auto_commit: AutoCommit::When(AutoCommitWhen::PollingMessages),
             consumer_kind: ConsumerKind::Consumer,
             encryptor: None,
             partitioning: Partitioning::balanced(),
-            partitions_count: 1,
+            partition: 1,
             replication_factor: None,
         }
     }
@@ -129,42 +133,44 @@ impl IggyStreamConfig {
     ///
     /// # Args
     ///
+    /// * `auto_commit` - The auto-commit configuration to use.
+    /// * `batch_size` - The max number of messages to send in a batch.
+    /// * `consumer_name` - The name of the consumer group.
+    /// * `consumer_kind` - The consumer kind to use.
+    /// * `encryptor` - The encryptor to use for encrypting the messages' payloads.
+    /// * `partitioning` - The partitioning strategy to use.
+    /// * `partition` - The number of partitions to create.
+    /// * `polling_interval` - The interval between polling for new messages.
+    /// * `polling_strategy` - The polling strategy to use.
+    /// * `replication_factor` - The replication factor to use.
+    /// * `send_interval` - The interval between messages sent.
     /// * `stream_id` - The stream identifier.
     /// * `stream_name` - The stream name.
     /// * `topic_id` - The topic identifier.
     /// * `topic_name` - The topic name.
-    /// * `batch_size` - The max number of messages to send in a batch.
-    /// * `consume_name` - The consumer group name.
-    /// * `send_interval` - The interval between messages sent.
-    /// * `polling_interval` - The interval between polling for new messages.
-    /// * `polling_strategy` - The polling strategy to use.
-    /// * `encryptor` - The encryptor to use.
-    /// * `partitioning` - The partitioning strategy to use.
-    /// * `partitions_count` - The number of partitions to use.
-    /// * `replication_factor` - The replication factor to use.
-    ///
-    /// # Errors
-    ///
-    /// * `IggyError::InvalidIdentifier` - If the provided stream or topic identifier is invalid.
     ///
     /// Returns:
     /// A new `IggyStreamConfig`.
     ///
+    /// Errors:
+    /// * `IggyError` if the given arguments are invalid.
+    ///
     pub fn with_all_fields(
+        auto_commit: AutoCommit,
+        batch_size: u32,
+        consumer_name: String,
+        consumer_kind: ConsumerKind,
+        encryptor: Option<Arc<EncryptorKind>>,
+        partitioning: Partitioning,
+        partition: u32,
+        polling_interval: IggyDuration,
+        polling_strategy: PollingStrategy,
+        replication_factor: Option<u8>,
+        send_interval: IggyDuration,
         stream_id: Identifier,
         stream_name: String,
         topic_id: Identifier,
         topic_name: String,
-        batch_size: u32,
-        consume_name: String,
-        send_interval: IggyDuration,
-        polling_interval: IggyDuration,
-        polling_strategy: PollingStrategy,
-        consumer_kind: ConsumerKind,
-        encryptor: Option<Arc<EncryptorKind>>,
-        partitioning: Partitioning,
-        partitions_count: u32,
-        replication_factor: Option<u8>,
     ) -> Result<Self, IggyError> {
         Ok(Self {
             stream_id,
@@ -172,14 +178,15 @@ impl IggyStreamConfig {
             topic_id,
             topic_name,
             batch_size,
-            consumer_group_name: consume_name,
+            consumer_name,
             send_interval,
             polling_interval,
             polling_strategy,
+            auto_commit,
             consumer_kind,
             encryptor,
             partitioning,
-            partitions_count,
+            partition,
             replication_factor,
         })
     }
@@ -207,8 +214,8 @@ impl IggyStreamConfig {
         self.batch_size
     }
 
-    pub fn encryptor(&self) -> &Option<Arc<EncryptorKind>> {
-        &self.encryptor
+    pub fn consumer_group_name(&self) -> &str {
+        &self.consumer_name
     }
 
     pub fn send_interval(&self) -> IggyDuration {
@@ -223,23 +230,27 @@ impl IggyStreamConfig {
         self.polling_strategy
     }
 
-    pub fn partitions_count(&self) -> u32 {
-        self.partitions_count
-    }
-
-    pub fn replication_factor(&self) -> Option<u8> {
-        self.replication_factor
-    }
-
-    pub fn partitioning(&self) -> Partitioning {
-        self.partitioning.to_owned()
-    }
-
-    pub fn consumer_group_name(&self) -> &str {
-        &self.consumer_group_name
+    pub fn auto_commit(&self) -> AutoCommit {
+        self.auto_commit
     }
 
     pub fn consumer_kind(&self) -> ConsumerKind {
         self.consumer_kind
+    }
+
+    pub fn encryptor(&self) -> &Option<Arc<EncryptorKind>> {
+        &self.encryptor
+    }
+
+    pub fn partitioning(&self) -> &Partitioning {
+        &self.partitioning
+    }
+
+    pub fn partitions_count(&self) -> u32 {
+        self.partition
+    }
+
+    pub fn replication_factor(&self) -> Option<u8> {
+        self.replication_factor
     }
 }

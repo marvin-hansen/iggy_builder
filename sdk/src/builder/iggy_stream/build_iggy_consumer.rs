@@ -28,6 +28,7 @@ impl IggyStream {
         stream_config: &IggyStreamConfig,
     ) -> Result<IggyConsumer, IggyError> {
         // Extract config fields.
+        let auto_commit = stream_config.auto_commit();
         let consumer_kind = stream_config.consumer_kind();
         let consumer_name = stream_config.consumer_group_name();
         let stream = stream_config.stream_name();
@@ -35,13 +36,14 @@ impl IggyStream {
         let batch_size = stream_config.batch_size();
         let polling_interval = stream_config.polling_interval();
         let polling_strategy = stream_config.polling_strategy();
+        let partition = stream_config.partitions_count();
 
         // Build consumer.
         let mut consumer = match consumer_kind {
-            ConsumerKind::Consumer => client.consumer(consumer_name, stream, topic, 1)?,
+            ConsumerKind::Consumer => client.consumer(consumer_name, stream, topic, partition)?,
             ConsumerKind::ConsumerGroup => client.consumer_group(consumer_name, stream, topic)?,
         }
-        .auto_commit(AutoCommit::When(AutoCommitWhen::PollingMessages))
+        .auto_commit(auto_commit)
         .create_consumer_group_if_not_exists()
         .auto_join_consumer_group()
         .polling_strategy(polling_strategy)
