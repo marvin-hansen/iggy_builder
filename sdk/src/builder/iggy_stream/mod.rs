@@ -1,9 +1,7 @@
-mod build_iggy_consumer;
-mod build_iggy_producer;
-mod config_iggy_consumer;
-mod config_iggy_producer;
-mod config_iggy_stream;
+mod build;
+mod config;
 mod iggy_stream;
-
-pub use config_iggy_stream::IggyStreamConfig;
+pub use config::config_iggy_consumer::IggyConsumerConfig;
+pub use config::config_iggy_producer::IggyProducerConfig;
+pub use config::config_iggy_stream::IggyStreamConfig;
 pub use iggy_stream::IggyStream;
