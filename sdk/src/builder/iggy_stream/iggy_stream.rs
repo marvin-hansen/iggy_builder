@@ -45,7 +45,7 @@ impl IggyStream {
         config: &IggyStreamConfig,
     ) -> Result<(IggyClient, IggyProducer, IggyConsumer), IggyError> {
         // Build and connect iggy client
-        let client = build_iggy_client::build_iggy_client(connection_string, true).await?;
+        let client = build_iggy_client::build_iggy_client(connection_string).await?;
 
         // Build iggy producer and consumer
         let (iggy_producer, iggy_consumer) = Self::new(&client, config).await?;

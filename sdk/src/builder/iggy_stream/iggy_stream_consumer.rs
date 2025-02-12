@@ -21,12 +21,12 @@ impl IggyStreamConsumer {
         Ok(iggy_consumer)
     }
 
-    pub async fn with_client_from_connection_string(
+    pub async fn with_client_from_url(
         connection_string: &str,
         config: &IggyConsumerConfig,
     ) -> Result<(IggyClient, IggyConsumer), IggyError> {
         // Build and connect iggy client
-        let client = build_iggy_client::build_iggy_client(connection_string, true).await?;
+        let client = build_iggy_client::build_iggy_client(connection_string).await?;
 
         let iggy_consumer = match build_iggy_consumer::build_iggy_consumer(&client, config).await {
             Ok(iggy_consumer) => iggy_consumer,

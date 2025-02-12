@@ -26,7 +26,7 @@ impl IggyStreamProducer {
         config: &IggyProducerConfig,
     ) -> Result<(IggyClient, IggyProducer), IggyError> {
         // Build and connect iggy client
-        let client = build_iggy_client::build_iggy_client(connection_string, true).await?;
+        let client = build_iggy_client::build_iggy_client(connection_string).await?;
 
         // Build iggy producer
         let iggy_producer = match build_iggy_producer::build_iggy_producer(&client, config).await {

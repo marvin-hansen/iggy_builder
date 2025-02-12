@@ -1,19 +1,16 @@
 use iggy::client::Client;
 use iggy::error::IggyError;
-use iggy_examples::shared;
 use iggy_examples::shared::stream::PrintEventConsumer;
 use sdk::builder::{IggyConsumerConfig, IggyConsumerMessageExt, IggyStreamConsumer};
-use std::str::FromStr;
 use tokio::sync::oneshot;
+
+const IGGY_URL: &str = "iggy://iggy:iggy@localhost:8090";
 
 #[tokio::main]
 async fn main() -> Result<(), IggyError> {
-    println!("Build iggy client and connect it.");
-    let client = shared::client::build_client("test_stream", "test_topic", true).await?;
-
-    println!("Build iggy consumer");
-    let config = stream_consumer_config();
-    let consumer = IggyStreamConsumer::new(&client, &config).await?;
+    println!("Build iggy client & consumer");
+    let (client, consumer) =
+        IggyStreamConsumer::with_client_from_url(IGGY_URL, &stream_consumer_config()).await?;
 
     println!("Start message stream");
     let (sender, receiver) = oneshot::channel();
@@ -29,7 +26,7 @@ async fn main() -> Result<(), IggyError> {
     });
 
     // wait some time
-    tokio::time::sleep(tokio::time::Duration::from_secs(15)).await;
+    tokio::time::sleep(tokio::time::Duration::from_secs(5)).await;
     println!("Stop the message stream and shutdown iggy client");
     sender.send(()).expect("Failed to send shutdown signal");
     client.shutdown().await?;
@@ -38,10 +35,6 @@ async fn main() -> Result<(), IggyError> {
 }
 
 fn stream_consumer_config() -> IggyConsumerConfig {
-    IggyConsumerConfig::from_stream_topic(
-        "test_stream",
-        "test_topic",
-        100,
-        iggy::utils::duration::IggyDuration::from_str("1ms").unwrap(),
-    )
+    // For full configuration, use the `new` constructor
+    IggyConsumerConfig::default()
 }

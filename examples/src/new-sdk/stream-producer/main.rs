@@ -27,10 +27,6 @@ async fn main() -> Result<(), IggyError> {
 }
 
 fn stream_producer_config() -> IggyProducerConfig {
-    IggyProducerConfig::from_stream_topic(
-        "test_stream",
-        "test_topic",
-        100,
-        iggy::utils::duration::IggyDuration::from_str("1ms").unwrap(),
-    )
+    // For full configuration, use the `new` constructor
+    IggyProducerConfig::default()
 }
