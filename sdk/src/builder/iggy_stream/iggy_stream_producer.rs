@@ -21,7 +21,7 @@ impl IggyStreamProducer {
         Ok(iggy_producer)
     }
 
-    pub async fn with_client_from_connection_string(
+    pub async fn with_client_from_url(
         connection_string: &str,
         config: &IggyProducerConfig,
     ) -> Result<(IggyClient, IggyProducer), IggyError> {

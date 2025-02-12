@@ -16,8 +16,18 @@ path = "src/new-sdk/producer/main.rs"
 
 
 [[example]]
-name = "new-sdk-stream"
-path = "src/new-sdk/stream/main.rs"
+name = "new-sdk-stream-basic"
+path = "src/new-sdk/stream-basic/main.rs"
+
+
+[[example]]
+name = "new-sdk-stream-consumer"
+path = "src/new-sdk/stream-consumer/main.rs"
+
+
+[[example]]
+name = "new-sdk-stream-producer"
+path = "src/new-sdk/stream-producer/main.rs"
 
 
 [dependencies]
