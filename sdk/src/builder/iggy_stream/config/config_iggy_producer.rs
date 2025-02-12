@@ -1,5 +1,4 @@
 use iggy::identifier::Identifier;
-use iggy::messages::poll_messages::PollingStrategy;
 use iggy::messages::send_messages::Partitioning;
 use iggy::utils::duration::IggyDuration;
 use std::str::FromStr;

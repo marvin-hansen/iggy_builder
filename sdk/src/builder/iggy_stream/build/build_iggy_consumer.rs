@@ -1,5 +1,4 @@
-use crate::builder::iggy_stream::IggyStream;
-use crate::builder::{IggyConsumerConfig, IggyStreamConfig};
+use crate::builder::IggyConsumerConfig;
 use iggy::clients::client::IggyClient;
 use iggy::clients::consumer::IggyConsumer;
 use iggy::consumer::ConsumerKind;

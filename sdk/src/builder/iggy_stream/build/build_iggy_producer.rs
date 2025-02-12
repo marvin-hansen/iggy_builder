@@ -1,5 +1,4 @@
-use crate::builder::iggy_stream::IggyStream;
-use crate::builder::{IggyProducerConfig, IggyStreamConfig};
+use crate::builder::IggyProducerConfig;
 use iggy::clients::client::IggyClient;
 use iggy::clients::producer::IggyProducer;
 use iggy::error::IggyError;
