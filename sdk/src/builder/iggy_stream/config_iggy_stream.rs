@@ -49,7 +49,7 @@ impl Default for IggyStreamConfig {
             polling_interval: IggyDuration::from_str("5ms").unwrap(),
             polling_strategy: PollingStrategy::last(),
             auto_commit: AutoCommit::When(AutoCommitWhen::PollingMessages),
-            consumer_kind: ConsumerKind::ConsumerGroup,       
+            consumer_kind: ConsumerKind::ConsumerGroup,
             partition: 1,
             partitioning: Partitioning::balanced(),
             replication_factor: None,

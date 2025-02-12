@@ -28,15 +28,16 @@ impl IggyStream {
         stream_config: &IggyStreamConfig,
     ) -> Result<IggyConsumer, IggyError> {
         // Extract config fields.
+        let stream = stream_config.stream_name();
+        let topic = stream_config.topic_name();
         let auto_commit = stream_config.auto_commit();
         let consumer_kind = stream_config.consumer_kind();
         let consumer_name = stream_config.consumer_group_name();
-        let stream = stream_config.stream_name();
-        let topic = stream_config.topic_name();
         let batch_size = stream_config.batch_size();
         let polling_interval = stream_config.polling_interval();
         let polling_strategy = stream_config.polling_strategy();
         let partition = stream_config.partitions_count();
+        // let encryptor = stream_config.encryptor().to_owned().unwrap();
 
         // Build consumer.
         let mut consumer = match consumer_kind {

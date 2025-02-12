@@ -36,6 +36,7 @@ impl IggyStream {
         let partitions_count = stream_config.partitions_count();
         let partitioning = stream_config.partitioning().to_owned();
         let replication_factor = stream_config.replication_factor();
+        // let encryptor = stream_config.encryptor().to_owned().unwrap();
 
         // Build producer.
         let mut producer = client

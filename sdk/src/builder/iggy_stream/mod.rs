@@ -1,5 +1,7 @@
 mod build_iggy_consumer;
 mod build_iggy_producer;
+mod config_iggy_consumer;
+mod config_iggy_producer;
 mod config_iggy_stream;
 mod iggy_stream;
 
