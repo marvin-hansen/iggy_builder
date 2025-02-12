@@ -1,3 +1,4 @@
+use crate::builder::iggy_stream::build::{build_iggy_consumer, build_iggy_producer};
 use crate::builder::IggyStreamConfig;
 use iggy::client::Client;
 use iggy::clients::client::IggyClient;
@@ -14,13 +15,13 @@ impl IggyStream {
         config: &IggyStreamConfig,
     ) -> Result<(IggyProducer, IggyConsumer), IggyError> {
         // Build iggy producer
-        let iggy_producer = match Self::build_iggy_producer(client, config).await {
+        let iggy_producer = match build_iggy_producer::build_iggy_producer(client, config).await {
             Ok(iggy_producer) => iggy_producer,
             Err(err) => return Err(err),
         };
 
         // Build iggy consumer
-        let iggy_consumer = match Self::build_iggy_consumer(client, config).await {
+        let iggy_consumer = match build_iggy_consumer::build_iggy_consumer(client, config).await {
             Ok(iggy_consumer) => iggy_consumer,
             Err(err) => return Err(err),
         };
