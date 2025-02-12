@@ -12,7 +12,7 @@ impl IggyStreamProducer {
         client: &IggyClient,
         config: &IggyProducerConfig,
     ) -> Result<IggyProducer, IggyError> {
-        // Build iggy producer
+        // Build iggy producer. The producer creates stream and topic if it doesn't exist
         let iggy_producer = match build_iggy_producer::build_iggy_producer(client, config).await {
             Ok(iggy_producer) => iggy_producer,
             Err(err) => return Err(err),
