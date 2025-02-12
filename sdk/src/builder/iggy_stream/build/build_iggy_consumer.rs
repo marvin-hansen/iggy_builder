@@ -1,17 +1,17 @@
 use crate::builder::iggy_stream::IggyStream;
-use crate::builder::IggyStreamConfig;
+use crate::builder::{IggyConsumerConfig, IggyStreamConfig};
 use iggy::clients::client::IggyClient;
 use iggy::clients::consumer::IggyConsumer;
 use iggy::consumer::ConsumerKind;
 use iggy::error::IggyError;
 use tracing::error;
 
-/// Builds an `IggyConsumer` from the given `IggyClient` and `IggyStreamConfig`.
+/// Builds an `IggyConsumer` from the given `IggyClient` and `IggyConsumerConfig`.
 ///
 /// # Arguments
 ///
 /// * `client` - The `IggyClient` to use.
-/// * `stream_config` - The `IggyStreamConfig` to use.
+/// * `config` - The `IggyConsumerConfig` to use.
 ///
 /// # Errors
 ///
@@ -19,24 +19,24 @@ use tracing::error;
 ///
 /// # Details
 ///
-/// This function will create a new `IggyConsumer` with the given `IggyClient` and `IggyStreamConfig`.
-/// The `IggyStreamConfig` fields are used to configure the `IggyConsumer`.
+/// This function will create a new `IggyConsumer` with the given `IggyClient` and `IggyConsumerConfig`.
+/// The `IggyConsumerConfig` fields are used to configure the `IggyConsumer`.
 ///
 pub(crate) async fn build_iggy_consumer(
     client: &IggyClient,
-    stream_config: &IggyStreamConfig,
+    config: &IggyConsumerConfig,
 ) -> Result<IggyConsumer, IggyError> {
     // Extract config fields.
-    let stream = stream_config.stream_name();
-    let topic = stream_config.topic_name();
-    let auto_commit = stream_config.auto_commit();
-    let consumer_kind = stream_config.consumer_kind();
-    let consumer_name = stream_config.consumer_group_name();
-    let batch_size = stream_config.batch_size();
-    let polling_interval = stream_config.polling_interval();
-    let polling_strategy = stream_config.polling_strategy();
-    let partition = stream_config.partitions_count();
-    // let encryptor = stream_config.encryptor().to_owned().unwrap();
+    let stream = config.stream_name();
+    let topic = config.topic_name();
+    let auto_commit = config.auto_commit();
+    let consumer_kind = config.consumer_kind();
+    let consumer_name = config.consumer_name();
+    let batch_size = config.batch_size();
+    let polling_interval = config.polling_interval();
+    let polling_strategy = config.polling_strategy();
+    let partition = config.partition();
+    // let encryptor = config.encryptor().to_owned().unwrap();
 
     // Build consumer.
     let mut consumer = match consumer_kind {

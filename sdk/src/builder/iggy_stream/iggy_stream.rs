@@ -1,6 +1,7 @@
-use crate::builder::iggy_stream::build::{build_iggy_consumer, build_iggy_producer};
+use crate::builder::iggy_stream::build::{
+    build_iggy_client, build_iggy_consumer, build_iggy_producer,
+};
 use crate::builder::IggyStreamConfig;
-use iggy::client::Client;
 use iggy::clients::client::IggyClient;
 use iggy::clients::consumer::IggyConsumer;
 use iggy::clients::producer::IggyProducer;
@@ -15,13 +16,23 @@ impl IggyStream {
         config: &IggyStreamConfig,
     ) -> Result<(IggyProducer, IggyConsumer), IggyError> {
         // Build iggy producer
-        let iggy_producer = match build_iggy_producer::build_iggy_producer(client, config).await {
+        let iggy_producer = match build_iggy_producer::build_iggy_producer(
+            client,
+            config.producer_config(),
+        )
+        .await
+        {
             Ok(iggy_producer) => iggy_producer,
             Err(err) => return Err(err),
         };
 
         // Build iggy consumer
-        let iggy_consumer = match build_iggy_consumer::build_iggy_consumer(client, config).await {
+        let iggy_consumer = match build_iggy_consumer::build_iggy_consumer(
+            client,
+            config.consumer_config(),
+        )
+        .await
+        {
             Ok(iggy_consumer) => iggy_consumer,
             Err(err) => return Err(err),
         };
@@ -34,8 +45,7 @@ impl IggyStream {
         config: &IggyStreamConfig,
     ) -> Result<(IggyClient, IggyProducer, IggyConsumer), IggyError> {
         // Build and connect iggy client
-        let client = IggyClient::from_connection_string(connection_string)?;
-        client.connect().await?;
+        let client = build_iggy_client::build_iggy_client(connection_string, true).await?;
 
         // Build iggy producer and consumer
         let (iggy_producer, iggy_consumer) = Self::new(&client, config).await?;

@@ -1,5 +1,5 @@
 use crate::builder::iggy_stream::IggyStream;
-use crate::builder::IggyStreamConfig;
+use crate::builder::{IggyProducerConfig, IggyStreamConfig};
 use iggy::clients::client::IggyClient;
 use iggy::clients::producer::IggyProducer;
 use iggy::error::IggyError;
@@ -12,7 +12,7 @@ use tracing::error;
 /// # Arguments
 ///
 /// * `client` - The Iggy client.
-/// * `stream_config` - The stream configuration.
+/// * `config` - The configuration.
 ///
 /// # Errors
 ///
@@ -20,22 +20,22 @@ use tracing::error;
 ///
 /// # Details
 ///
-/// This function will create a new `IggyProducer` with the given `IggyClient` and `IggyStreamConfig`.
-/// The `IggyStreamConfig` fields are used to configure the `IggyProducer`.
+/// This function will create a new `IggyProducer` with the given `IggyClient` and `IggyProducerConfig`.
+/// The `IggyProducerConfig` fields are used to configure the `IggyProducer`.
 ///
 pub(crate) async fn build_iggy_producer(
     client: &IggyClient,
-    stream_config: &IggyStreamConfig,
+    config: &IggyProducerConfig,
 ) -> Result<IggyProducer, IggyError> {
     // Extract config fields.
-    let stream = stream_config.stream_name();
-    let topic = stream_config.topic_name();
-    let batch_size = stream_config.batch_size();
-    let send_interval = stream_config.send_interval();
-    let partitions_count = stream_config.partitions_count();
-    let partitioning = stream_config.partitioning().to_owned();
-    let replication_factor = stream_config.replication_factor();
-    // let encryptor = stream_config.encryptor().to_owned().unwrap();
+    let stream = config.stream_name();
+    let topic = config.topic_name();
+    let batch_size = config.batch_size();
+    let send_interval = config.send_interval();
+    let partitions_count = config.partition();
+    let partitioning = config.partitioning().to_owned();
+    let replication_factor = config.replication_factor();
+    // let encryptor = config.encryptor().to_owned().unwrap();
 
     // Build producer.
     let mut producer = client

@@ -28,39 +28,7 @@ sdk = { git = "https://github.com/marvin-hansen/iggy_builder.git", branch = "mai
 Find a full example in the [examples](examples) directory.
 
 ```rust
-use iggy::client::{Client, StreamClient};
-use sdk::builder::*;
-use std::str::FromStr;
-use tokio::sync::oneshot;
- 
-const IGGY_URL: &str = "iggy://iggy:iggy@localhost:8090";
-  
-#[tokio::main]
-async fn main() -> Result<(), IggyError> {
-    let stream_config = IggyStreamConfig::from_stream_topic("test_stream", "test_topic", 10);
-    let (client, producer, consumer) = IggyStream::with_client_from_connection_string(IGGY_URL, &stream_config).await?;
-
-    let (sender, receiver) = oneshot::channel();
-    tokio::spawn(async move {
-        match consumer.consume_messages(&PrintEventConsumer {}, receiver).await {
-            Ok(_) => {}
-            Err(err) => eprintln!("Failed to consume messages: {err}"),
-        }
-    });
-
-    producer.send_one(Message::from_str("Hello World")?).await?;
-    producer.send_one(Message::from_str("Hola Iggy")?).await?;
-    producer.send_one(Message::from_str("Hi Apache")?).await?;
-    // wait a bit for all messages to arrive.
-    tokio::time::sleep(tokio::time::Duration::from_secs(1)).await;
-    
-    // Stop the message stream and shutdown iggy client
-    sender.send(()).expect("Failed to send shutdown signal");
-    iggy_client.delete_stream(stream_config.stream_id()).await?;
-    iggy_client.shutdown().await?;
-
-    Ok(())
-}
+@TODO
 ```
 
 ## Configuration 
@@ -68,23 +36,9 @@ async fn main() -> Result<(), IggyError> {
 A basic IggyStream only requires very little configuration. See example below.
 
 ```rust
-use sdk::builder::IggyStreamConfig;
-
-fn stream_config() -> IggyStreamConfig {
-    IggyStreamConfig::new(
-        "test_stream",
-        "test_topic",
-        100,
-        iggy::utils::duration::IggyDuration::from_str("1ms").unwrap(),
-        iggy::utils::duration::IggyDuration::from_str("1ms").unwrap(),
-        iggy::messages::poll_messages::PollingStrategy::last(),
-    )
-}
+@TODO
 ```  
 
-For more advanced configuration, use the `with_all_fields` constructor from the `IggyStreamConfig`.
-If your requirements exceed these configuration parameters, you can use the regular SDK
-to construct fully customized producers and consumers.
 
 ## IggyConsumerMessageExt
 
