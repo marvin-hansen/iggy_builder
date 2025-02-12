@@ -7,7 +7,7 @@ use sdk::builder::{
     EventConsumer, EventConsumerError, IggyConsumerMessageExt, IggyStream, IggyStreamConfig,
 };
 use std::str::FromStr;
-use tokio_util::sync::CancellationToken;
+use tokio::sync::oneshot;
 
 const IGGY_URL: &str = "iggy://iggy:iggy@localhost:8090";
 
@@ -25,11 +25,10 @@ async fn test_iggy_stream() {
     println!("✅ iggy stream build");
 
     println!("Start iggy stream");
-    let token = CancellationToken::new();
-    let token_consumer = token.clone();
+    let (tx_sender, receiver) = oneshot::channel();
     tokio::spawn(async move {
         match consumer
-            .consume_messages(&PrintEventConsumer {}, token)
+            .consume_messages(&PrintEventConsumer {}, receiver)
             .await
         {
             Ok(_) => {}
@@ -49,7 +48,7 @@ async fn test_iggy_stream() {
     println!("✅ test message send");
 
     println!("Stop iggy consumer");
-    token_consumer.cancel();
+    tx_sender.send(()).unwrap();
     println!("✅ iggy consumer stopped");
 
     println!("Stop iggy client");
@@ -59,13 +58,12 @@ async fn test_iggy_stream() {
 }
 
 fn stream_config() -> IggyStreamConfig {
-    IggyStreamConfig::new(
+    IggyStreamConfig::from_stream_topic(
         "test_stream",
         "test_topic",
         100,
         iggy::utils::duration::IggyDuration::from_str("1ms").unwrap(),
         iggy::utils::duration::IggyDuration::from_str("1ms").unwrap(),
-        iggy::messages::poll_messages::PollingStrategy::last(),
     )
 }
 
