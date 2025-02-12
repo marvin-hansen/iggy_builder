@@ -1,4 +1,5 @@
 use crate::builder::{IggyConsumerConfig, IggyProducerConfig};
+use iggy::identifier::Identifier;
 use iggy::utils::duration::IggyDuration;
 
 #[derive(Debug, Clone)]
@@ -53,5 +54,21 @@ impl IggyStreamConfig {
 
     pub fn producer_config(&self) -> &IggyProducerConfig {
         &self.producer_config
+    }
+
+    pub fn stream_id(&self) -> &Identifier {
+        &self.producer_config.stream_id()
+    }
+
+    pub fn stream_name(&self) -> &str {
+        &self.producer_config.stream_name()
+    }
+
+    pub fn topic_id(&self) -> &Identifier {
+        &self.producer_config.topic_id()
+    }
+
+    pub fn topic_name(&self) -> &str {
+        &self.producer_config.topic_name()
     }
 }

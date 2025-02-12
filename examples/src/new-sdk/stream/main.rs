@@ -13,7 +13,7 @@ async fn main() -> Result<(), IggyError> {
     let client = shared::client::build_client(stream, topic, true).await?;
 
     println!("Build iggy producer & consumer");
-    let stream_config = IggyStreamConfig::from_stream_topic(stream, topic, 10);
+    let stream_config = stream_config();
     let (producer, consumer) = IggyStream::new(&client, &stream_config).await?;
 
     println!("Start message stream");
@@ -42,6 +42,16 @@ async fn main() -> Result<(), IggyError> {
     client.shutdown().await?;
 
     Ok(())
+}
+
+fn stream_config() -> IggyStreamConfig {
+    IggyStreamConfig::from_stream_topic(
+        "test_stream",
+        "test_topic",
+        100,
+        iggy::utils::duration::IggyDuration::from_str("1ms").unwrap(),
+        iggy::utils::duration::IggyDuration::from_str("1ms").unwrap(),
+    )
 }
 
 #[derive(Debug)]
