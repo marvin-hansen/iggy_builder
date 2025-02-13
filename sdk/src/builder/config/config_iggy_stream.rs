@@ -1,8 +1,9 @@
 use crate::builder::{IggyConsumerConfig, IggyProducerConfig};
+use bon::Builder;
 use iggy::identifier::Identifier;
 use iggy::utils::duration::IggyDuration;
 
-#[derive(Debug, Clone)]
+#[derive(Builder, Debug, Clone)]
 pub struct IggyStreamConfig {
     consumer_config: IggyConsumerConfig,
     producer_config: IggyProducerConfig,

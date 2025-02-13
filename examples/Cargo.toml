@@ -32,10 +32,10 @@ path = "src/new-sdk/stream-producer/main.rs"
 
 [dependencies]
 sdk = { path = "../sdk" }
-iggy = { version = "0.6" }
 anyhow = "1.0.95"
 clap = { version = "4.5.23", features = ["derive"] }
 futures-util = "0.3.31"
+iggy = { version = "0.6" }
 rand = "0.8.5"
 serde = { version = "1.0.217", features = ["derive", "rc"] }
 serde_json = "1.0.138"

@@ -1,10 +1,12 @@
+use crate::builder::config::shared_config;
+use bon::Builder;
 use iggy::identifier::Identifier;
 use iggy::messages::send_messages::Partitioning;
 use iggy::utils::duration::IggyDuration;
 use std::str::FromStr;
-use tracing::error;
 
-#[derive(Debug, Clone)]
+#[derive(Builder, Debug, Clone)]
+#[builder(on(String, into))]
 pub struct IggyProducerConfig {
     stream_id: Identifier,
     stream_name: String,
@@ -19,10 +21,13 @@ pub struct IggyProducerConfig {
 
 impl Default for IggyProducerConfig {
     fn default() -> Self {
+        let stream_id = shared_config::get_identifier_from_string("test_stream");
+        let topic_id = shared_config::get_identifier_from_string("test_topic");
+
         Self {
-            stream_id: Identifier::from_str_value("test_stream").unwrap(),
+            stream_id,
             stream_name: "test_stream".to_string(),
-            topic_id: Identifier::from_str_value("test_topic").unwrap(),
+            topic_id,
             topic_name: "test_topic".to_string(),
             batch_size: 100,
             send_interval: IggyDuration::from_str("5ms").unwrap(),
@@ -94,21 +99,8 @@ impl IggyProducerConfig {
         batch_size: u32,
         send_interval: IggyDuration,
     ) -> Self {
-        let stream_id = match Identifier::from_str_value(stream) {
-            Ok(id) => id,
-            Err(err) => {
-                error!("Failed to parse stream id due to error: {}", err);
-                panic!("{}", err.as_string());
-            }
-        };
-
-        let topic_id = match Identifier::from_str_value(topic) {
-            Ok(id) => id,
-            Err(err) => {
-                error!("Failed to parse topic id due to error: {}", err);
-                panic!("{}", err.as_string());
-            }
-        };
+        let stream_id = shared_config::get_identifier_from_string(stream);
+        let topic_id = shared_config::get_identifier_from_string(topic);
 
         Self {
             stream_id,

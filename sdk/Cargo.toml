@@ -7,10 +7,10 @@ license = "Apache-2.0"
 
 [dependencies]
 async-trait = { version = "0.1" }
+bon = { version = "3.3.2" }
 futures = "0.3"
 futures-util = "0.3"
 iggy = {version = "0.6"}
 tracing = { version = "0.1" }
 trait-variant = {version = "0.1"}
 tokio = "1.40"
-tokio-util = "0.7"
