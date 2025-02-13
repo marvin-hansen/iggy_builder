@@ -13,13 +13,24 @@ use tracing::info;
 pub struct IggyStream {}
 
 impl IggyStream {
+    /// Build and connect iggy client, producer and consumer
+    ///
+    /// # Arguments
+    ///
+    /// * `client` - reference to the iggy client
+    /// * `config` - configuration for the iggy stream
+    ///
+    /// # Errors
+    ///
+    /// If the builds fails, an `IggyError` is returned.
+    ///
     pub async fn new(
         client: &IggyClient,
         config: &IggyStreamConfig,
     ) -> Result<(IggyProducer, IggyConsumer), IggyError> {
         info!("Check if client is connected");
         if client.ping().await.is_err() {
-            return Err(IggyError::ClientShutdown);
+            return Err(IggyError::NotConnected);
         }
 
         info!("Build iggy producer");
@@ -48,6 +59,17 @@ impl IggyStream {
         Ok((iggy_producer, iggy_consumer))
     }
 
+    /// Build and connect iggy client, producer and consumer from connection string
+    ///
+    /// # Arguments
+    ///
+    /// * `connection_string` - connection string for the iggy server
+    /// * `config` - configuration for the iggy stream
+    ///
+    /// # Errors
+    ///
+    /// If the builds fails, an `IggyError` is returned.
+    ///
     pub async fn with_client_from_connection_string(
         connection_string: &str,
         config: &IggyStreamConfig,

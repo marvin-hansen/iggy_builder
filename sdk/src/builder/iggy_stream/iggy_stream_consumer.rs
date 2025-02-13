@@ -13,13 +13,24 @@ use tracing::info;
 pub struct IggyStreamConsumer {}
 
 impl IggyStreamConsumer {
+    /// Creates a new `IggyStreamConsumer` with an existing client and `IggyConsumerConfig`.
+    ///
+    /// # Arguments
+    ///
+    /// * `client`: the existing `IggyClient` to use for the consumer.
+    /// * `config`: the `IggyConsumerConfig` to use to build the consumer.
+    ///
+    /// # Errors
+    ///
+    /// If the builds fails, an `IggyError` is returned.
+    ///
     pub async fn new(
         client: &IggyClient,
         config: &IggyConsumerConfig,
     ) -> Result<IggyConsumer, IggyError> {
         info!("Check if client is connected");
         if client.ping().await.is_err() {
-            return Err(IggyError::ClientShutdown);
+            return Err(IggyError::NotConnected);
         }
 
         info!("Check if stream and topic exist");
@@ -37,6 +48,18 @@ impl IggyStreamConsumer {
         Ok(iggy_consumer)
     }
 
+    /// Creates a new `IggyStreamConsumer` by building a client from a connection string and
+    /// a consumer with an `IggyConsumerConfig`.
+    ///
+    /// # Arguments
+    ///
+    /// * `connection_string`: the connection string to use to build the client.
+    /// * `config`: the `IggyConsumerConfig` to use to build the consumer.
+    ///
+    /// # Errors
+    ///
+    /// If the builds fails, an `IggyError` is returned.
+    ///
     pub async fn with_client_from_url(
         connection_string: &str,
         config: &IggyConsumerConfig,
