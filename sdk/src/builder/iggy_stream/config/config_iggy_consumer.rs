@@ -18,7 +18,8 @@ pub struct IggyConsumerConfig {
     consumer_kind: ConsumerKind,
     polling_interval: IggyDuration,
     polling_strategy: PollingStrategy,
-    partition: u32,
+    partitions_count: u32,
+    replication_factor: Option<u8>,
 }
 
 impl Default for IggyConsumerConfig {
@@ -34,7 +35,8 @@ impl Default for IggyConsumerConfig {
             consumer_kind: ConsumerKind::ConsumerGroup,
             polling_interval: IggyDuration::from_str("5ms").unwrap(),
             polling_strategy: PollingStrategy::last(),
-            partition: 1,
+            partitions_count: 1,
+            replication_factor: None,
         }
     }
 }
@@ -70,7 +72,8 @@ impl IggyConsumerConfig {
         consumer_kind: ConsumerKind,
         polling_interval: IggyDuration,
         polling_strategy: PollingStrategy,
-        partition: u32,
+        partitions_count: u32,
+        replication_factor: Option<u8>,
     ) -> Self {
         Self {
             stream_id,
@@ -83,7 +86,8 @@ impl IggyConsumerConfig {
             consumer_kind,
             polling_interval,
             polling_strategy,
-            partition,
+            partitions_count,
+            replication_factor,
         }
     }
 
@@ -132,7 +136,8 @@ impl IggyConsumerConfig {
             consumer_kind: ConsumerKind::ConsumerGroup,
             polling_interval,
             polling_strategy: PollingStrategy::next(),
-            partition: 1,
+            partitions_count: 1,
+            replication_factor: None,
         }
     }
 }
@@ -178,7 +183,11 @@ impl IggyConsumerConfig {
         self.polling_strategy
     }
 
-    pub fn partition(&self) -> u32 {
-        self.partition
+    pub fn partitions_count(&self) -> u32 {
+        self.partitions_count
+    }
+
+    pub fn replication_factor(&self) -> Option<u8> {
+        self.replication_factor
     }
 }

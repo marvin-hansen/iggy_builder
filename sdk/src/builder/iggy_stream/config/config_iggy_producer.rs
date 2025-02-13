@@ -13,7 +13,7 @@ pub struct IggyProducerConfig {
     batch_size: u32,
     send_interval: IggyDuration,
     partitioning: Partitioning,
-    partition: u32,
+    partitions_count: u32,
     replication_factor: Option<u8>,
 }
 
@@ -27,7 +27,7 @@ impl Default for IggyProducerConfig {
             batch_size: 100,
             send_interval: IggyDuration::from_str("5ms").unwrap(),
             partitioning: Partitioning::balanced(),
-            partition: 1,
+            partitions_count: 1,
             replication_factor: None,
         }
     }
@@ -59,7 +59,7 @@ impl IggyProducerConfig {
         batch_size: u32,
         send_interval: IggyDuration,
         partitioning: Partitioning,
-        partition: u32,
+        partitions_count: u32,
         replication_factor: Option<u8>,
     ) -> Self {
         Self {
@@ -70,7 +70,7 @@ impl IggyProducerConfig {
             batch_size,
             send_interval,
             partitioning,
-            partition,
+            partitions_count,
             replication_factor,
         }
     }
@@ -118,7 +118,7 @@ impl IggyProducerConfig {
             batch_size,
             send_interval,
             partitioning: Partitioning::balanced(),
-            partition: 1,
+            partitions_count: 1,
             replication_factor: None,
         }
     }
@@ -153,8 +153,8 @@ impl IggyProducerConfig {
         &self.partitioning
     }
 
-    pub fn partition(&self) -> u32 {
-        self.partition
+    pub fn partitions_count(&self) -> u32 {
+        self.partitions_count
     }
 
     pub fn replication_factor(&self) -> Option<u8> {

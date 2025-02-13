@@ -3,7 +3,7 @@ use iggy::clients::client::IggyClient;
 use iggy::clients::consumer::IggyConsumer;
 use iggy::consumer::ConsumerKind;
 use iggy::error::IggyError;
-use tracing::error;
+use tracing::{error, info};
 
 /// Builds an `IggyConsumer` from the given `IggyClient` and `IggyConsumerConfig`.
 ///
@@ -25,7 +25,7 @@ pub(crate) async fn build_iggy_consumer(
     client: &IggyClient,
     config: &IggyConsumerConfig,
 ) -> Result<IggyConsumer, IggyError> {
-    // Extract config fields.
+    info!("Extract config fields.");
     let stream = config.stream_name();
     let topic = config.topic_name();
     let auto_commit = config.auto_commit();
@@ -34,10 +34,10 @@ pub(crate) async fn build_iggy_consumer(
     let batch_size = config.batch_size();
     let polling_interval = config.polling_interval();
     let polling_strategy = config.polling_strategy();
-    let partition = config.partition();
+    let partition = config.partitions_count();
     // let encryptor = config.encryptor().to_owned().unwrap();
 
-    // Build consumer.
+    info!("Build iggy consumer");
     let mut consumer = match consumer_kind {
         ConsumerKind::Consumer => client.consumer(consumer_name, stream, topic, partition)?,
         ConsumerKind::ConsumerGroup => client.consumer_group(consumer_name, stream, topic)?,
@@ -50,6 +50,7 @@ pub(crate) async fn build_iggy_consumer(
     .batch_size(batch_size)
     .build();
 
+    info!("Initialize producer");
     match consumer.init().await {
         Ok(_) => {}
         Err(err) => {

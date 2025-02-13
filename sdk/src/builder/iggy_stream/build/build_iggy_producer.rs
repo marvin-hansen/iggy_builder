@@ -4,7 +4,7 @@ use iggy::clients::producer::IggyProducer;
 use iggy::error::IggyError;
 use iggy::utils::expiry::IggyExpiry;
 use iggy::utils::topic_size::MaxTopicSize;
-use tracing::error;
+use tracing::{error, info};
 
 /// Build a producer from the stream configuration.
 ///
@@ -26,17 +26,17 @@ pub(crate) async fn build_iggy_producer(
     client: &IggyClient,
     config: &IggyProducerConfig,
 ) -> Result<IggyProducer, IggyError> {
-    // Extract config fields.
+    info!("Extract config fields.");
     let stream = config.stream_name();
     let topic = config.topic_name();
     let batch_size = config.batch_size();
     let send_interval = config.send_interval();
-    let partitions_count = config.partition();
+    let partitions_count = config.partitions_count();
     let partitioning = config.partitioning().to_owned();
     let replication_factor = config.replication_factor();
     // let encryptor = config.encryptor().to_owned().unwrap();
 
-    // Build producer.
+    info!("Build iggy producer");
     let mut producer = client
         .producer(stream, topic)?
         .batch_size(batch_size)
@@ -51,6 +51,7 @@ pub(crate) async fn build_iggy_producer(
         )
         .build();
 
+    info!("Initialize iggy producer");
     match producer.init().await {
         Ok(_) => {}
         Err(err) => {
