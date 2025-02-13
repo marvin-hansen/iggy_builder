@@ -9,7 +9,8 @@ const IGGY_URL: &str = "iggy://iggy:iggy@localhost:8090";
 #[tokio::main]
 async fn main() -> Result<(), IggyError> {
     println!("Build iggy client and producer");
-    let config = stream_producer_config();
+    //For customization, use the `new` or `from_stream_topic` constructor
+    let config = IggyProducerConfig::default();
     let (client, producer) = IggyStreamProducer::with_client_from_url(IGGY_URL, &config).await?;
 
     println!("Send 3 test messages...");
@@ -22,11 +23,5 @@ async fn main() -> Result<(), IggyError> {
     println!("Stop the message stream and shutdown iggy client");
     client.delete_stream(config.stream_id()).await?;
     client.shutdown().await?;
-
     Ok(())
-}
-
-fn stream_producer_config() -> IggyProducerConfig {
-    // For full configuration, use the `new` constructor
-    IggyProducerConfig::default()
 }

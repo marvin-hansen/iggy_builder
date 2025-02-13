@@ -9,8 +9,9 @@ const IGGY_URL: &str = "iggy://iggy:iggy@localhost:8090";
 #[tokio::main]
 async fn main() -> Result<(), IggyError> {
     println!("Build iggy client & consumer");
-    let (client, consumer) =
-        IggyStreamConsumer::with_client_from_url(IGGY_URL, &stream_consumer_config()).await?;
+    //For customization, use the `new` or `from_stream_topic` constructor
+    let config = IggyConsumerConfig::default();
+    let (client, consumer) = IggyStreamConsumer::with_client_from_url(IGGY_URL, &config).await?;
 
     println!("Start message stream");
     let (sender, receiver) = oneshot::channel();
@@ -25,16 +26,10 @@ async fn main() -> Result<(), IggyError> {
         }
     });
 
-    // wait some time
-    tokio::time::sleep(tokio::time::Duration::from_secs(5)).await;
+    // wait some time for all messages to arrive
+    tokio::time::sleep(tokio::time::Duration::from_secs(10)).await;
     println!("Stop the message stream and shutdown iggy client");
     sender.send(()).expect("Failed to send shutdown signal");
     client.shutdown().await?;
-
     Ok(())
-}
-
-fn stream_consumer_config() -> IggyConsumerConfig {
-    // For full configuration, use the `new` constructor
-    IggyConsumerConfig::default()
 }
