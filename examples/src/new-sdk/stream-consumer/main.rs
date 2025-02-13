@@ -14,11 +14,11 @@ async fn main() -> Result<(), IggyError> {
     let (client, consumer) = IggyStreamConsumer::with_client_from_url(IGGY_URL, &config).await?;
 
     println!("Start message stream");
-    let (sender, receiver) = oneshot::channel();
+    let (tx, rx) = oneshot::channel();
     tokio::spawn(async move {
         match consumer
             // PrintEventConsumer is imported from examples/src/shared/stream.rs
-            .consume_messages(&PrintEventConsumer {}, receiver)
+            .consume_messages(&PrintEventConsumer {}, rx)
             .await
         {
             Ok(_) => {}
@@ -29,7 +29,7 @@ async fn main() -> Result<(), IggyError> {
     // wait some time for all messages to arrive
     tokio::time::sleep(tokio::time::Duration::from_secs(10)).await;
     println!("Stop the message stream and shutdown iggy client");
-    sender.send(()).expect("Failed to send shutdown signal");
+    tx.send(()).expect("Failed to send shutdown signal");
     client.shutdown().await?;
     Ok(())
 }
