@@ -6,9 +6,11 @@ use tokio::sync::oneshot;
 
 #[async_trait]
 pub trait IggyConsumerMessageExt {
-    async fn consume_messages(
+    async fn consume_messages<P>(
         mut self,
-        event_processor: &'static (impl EventConsumer + Sync),
-        shutdown_rx: oneshot::Receiver<()>, // or any `Future<Output=()>`
-    ) -> Result<(), IggyError>;
+        event_processor: &'static P,
+        shutdown_rx: oneshot::Receiver<()>,
+    ) -> Result<(), IggyError>
+    where
+        P: EventConsumer + Sync;
 }

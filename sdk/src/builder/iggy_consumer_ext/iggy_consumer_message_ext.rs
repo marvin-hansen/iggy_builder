@@ -8,11 +8,14 @@ use tracing::{error, info};
 
 #[async_trait]
 impl IggyConsumerMessageExt for IggyConsumer {
-    async fn consume_messages(
+    async fn consume_messages<P>(
         mut self,
-        event_processor: &'static (impl EventConsumer + Sync),
+        event_processor: &'static P,
         mut shutdown_rx: oneshot::Receiver<()>,
-    ) -> Result<(), IggyError> {
+    ) -> Result<(), IggyError>
+    where
+        P: EventConsumer + Sync,
+    {
         loop {
             tokio::select! {
                 // Check first if we have received a shutdown signal
